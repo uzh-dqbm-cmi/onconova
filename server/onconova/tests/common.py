@@ -258,10 +258,17 @@ class ApiControllerTestMixin:
                 f"An error ocurred during the API call (returned 500): {response.content}"
             )
 
+        try:
+            content = response.json()
+        except:
+            content = None
         # Assert response status code
         assert (
             response.status_code in expected_responses
-        ), f"Endpoint responded with {response.status_code} (expected any of {expected_responses})"
+        ), f"""Endpoint responded with {response.status_code} (expected any of {expected_responses}).
+        
+        {content or ''}
+        """
         return response
 
 
@@ -271,8 +278,18 @@ class CrudApiControllerTestCase(ApiControllerTestMixin, TestCase):
     FACTORY: type[DjangoModelFactory] | List[type[DjangoModelFactory]]
     factories: List[type[DjangoModelFactory]]
     MODEL: Type[BaseModel] | List[Type[BaseModel]]
-    SCHEMA: Type[ModelGetSchema] | List[Type[ModelGetSchema]] | Type[Schema] | List[Type[Schema]]
-    CREATE_SCHEMA: Type[ModelCreateSchema] | List[Type[ModelCreateSchema]]  | Type[Schema] | List[Type[Schema]]
+    SCHEMA: (
+        Type[ModelGetSchema]
+        | List[Type[ModelGetSchema]]
+        | Type[Schema]
+        | List[Type[Schema]]
+    )
+    CREATE_SCHEMA: (
+        Type[ModelCreateSchema]
+        | List[Type[ModelCreateSchema]]
+        | Type[Schema]
+        | List[Type[Schema]]
+    )
     history_tracked: bool = True
 
     # Internal state
@@ -371,17 +388,43 @@ class CrudApiControllerTestCase(ApiControllerTestMixin, TestCase):
                                 item
                                 for item in response.json()["items"]
                                 if str(instance.id) == item["id"]
-                            )
+                            ),
+                            None,
                         )
+                        if entry is None:
+                            raise ValueError(
+                                f'Could not find ID "{str(instance.id)}" in response: \n\n {response.json()}'
+                            )
                     else:
-                        entry = response.json()[0]
+                        entry = next(
+                            (
+                                item
+                                for item in response.json()
+                                if str(instance.id) == item["id"]
+                            ),
+                            None,
+                        )
+                        if entry is None:
+                            raise ValueError(
+                                f'Could not find ID "{str(instance.id)}" in response: \n\n {response.json()}'
+                            )
                     expected = self.schemas[i].model_validate(instance).model_dump()
                     result = self.schemas[i].model_validate(entry).model_dump()
                     if self.history_tracked:
-                        expected["createdAt"] = expected["createdAt"].replace(
-                            microsecond=0
-                        )
-                        result["createdAt"] = result["createdAt"].replace(microsecond=0)
+
+                        def remove_microseconds(d):
+                            if isinstance(d, dict):
+                                for key, value in d.items():
+                                    if key == "createdAt" and hasattr(value, "replace"):
+                                        d[key] = value.replace(microsecond=0)
+                                    else:
+                                        remove_microseconds(value)
+                            elif isinstance(d, list):
+                                for item in d:
+                                    remove_microseconds(item)
+
+                        remove_microseconds(expected)
+                        remove_microseconds(result)
                     self.assertDictEqual(expected, result)
 
                     if can_be_anonymized:
@@ -420,11 +463,14 @@ class CrudApiControllerTestCase(ApiControllerTestMixin, TestCase):
         for i in range(self.subtests):
             can_be_anonymized = hasattr(self.schemas[i], "anonymized")
             instance = self.instances[i]
-            # Call the API endpoint
-            response = self.call_api_endpoint(
-                "GET", self.get_route_url_with_id(instance), anonymized=False, **config
-            )
             with self.subTest(i=i):
+                # Call the API endpoint
+                response = self.call_api_endpoint(
+                    "GET",
+                    self.get_route_url_with_id(instance),
+                    anonymized=False,
+                    **config,
+                )
                 # Assert response content
                 if scenario == "HTTPS Authenticated":
                     self.assertEqual(response.status_code, 200)
@@ -433,10 +479,20 @@ class CrudApiControllerTestCase(ApiControllerTestMixin, TestCase):
                         self.schemas[i].model_validate(response.json()).model_dump()
                     )
                     if self.history_tracked:
-                        expected["createdAt"] = expected["createdAt"].replace(
-                            microsecond=0
-                        )
-                        result["createdAt"] = result["createdAt"].replace(microsecond=0)
+
+                        def remove_microseconds(d):
+                            if isinstance(d, dict):
+                                for key, value in d.items():
+                                    if key == "createdAt" and hasattr(value, "replace"):
+                                        d[key] = value.replace(microsecond=0)
+                                    else:
+                                        remove_microseconds(value)
+                            elif isinstance(d, list):
+                                for item in d:
+                                    remove_microseconds(item)
+
+                        remove_microseconds(expected)
+                        remove_microseconds(result)
                     self.assertDictEqual(result, expected)
 
                     if can_be_anonymized:
@@ -464,11 +520,11 @@ class CrudApiControllerTestCase(ApiControllerTestMixin, TestCase):
     def test_delete(self, scenario, config):
         for i in range(self.subtests):
             instance = self.instances[i]
-            # Call the API endpoint
-            response = self.call_api_endpoint(
-                "DELETE", self.get_route_url_with_id(instance), **config
-            )
             with self.subTest(i=i):
+                # Call the API endpoint
+                response = self.call_api_endpoint(
+                    "DELETE", self.get_route_url_with_id(instance), **config
+                )
                 # Assert response content
                 if scenario == "HTTPS Authenticated":
                     self.assertEqual(response.status_code, 204)
@@ -491,11 +547,11 @@ class CrudApiControllerTestCase(ApiControllerTestMixin, TestCase):
             zip(self.instances, self.create_payloads, self.models)
         ):
             instance.delete()
-            # Call the API endpoint.
-            response = self.call_api_endpoint(
-                "POST", self.get_route_url(instance), data=payload, **config
-            )
             with self.subTest(i=i):
+                # Call the API endpoint.
+                response = self.call_api_endpoint(
+                    "POST", self.get_route_url(instance), data=payload, **config
+                )
                 # Assert response content
                 if scenario == "HTTPS Authenticated":
                     created_id = response.json()["id"]
@@ -568,11 +624,11 @@ class CrudApiControllerTestCase(ApiControllerTestMixin, TestCase):
             if not hasattr(self.models[i], "pgh_event_model"):
                 pytest.skip("Non-tracked model")
             instance = self.instances[i]
-            # Call the API endpoint
-            response = self.call_api_endpoint(
-                "GET", self.get_route_url_history(instance), **config
-            )
             with self.subTest(i=i):
+                # Call the API endpoint
+                response = self.call_api_endpoint(
+                    "GET", self.get_route_url_history(instance), **config
+                )
                 # Assert response content
                 if scenario == "HTTPS Authenticated":
                     self.assertEqual(response.status_code, 200)
@@ -592,11 +648,11 @@ class CrudApiControllerTestCase(ApiControllerTestMixin, TestCase):
                 event = instance.parent_events.first()
             else:
                 event = instance.events.first()
-            # Call the API endpoint
-            response = self.call_api_endpoint(
-                "GET", self.get_route_url_history_with_id(instance, event), **config
-            )
             with self.subTest(i=i):
+                # Call the API endpoint
+                response = self.call_api_endpoint(
+                    "GET", self.get_route_url_history_with_id(instance, event), **config
+                )
                 # Assert response content
                 if scenario == "HTTPS Authenticated":
                     self.assertEqual(response.status_code, 200)
@@ -629,12 +685,12 @@ class CrudApiControllerTestCase(ApiControllerTestMixin, TestCase):
                 insert_event = original_instance.events.filter(  # type: ignore
                     pgh_label="create"
                 ).first()
-            response = self.call_api_endpoint(
-                "PUT",
-                self.get_route_url_history_revert(original_instance, insert_event),
-                **config,
-            )
             with self.subTest(i=i):
+                response = self.call_api_endpoint(
+                    "PUT",
+                    self.get_route_url_history_revert(original_instance, insert_event),
+                    **config,
+                )
                 # Assert response content
                 if scenario == "HTTPS Authenticated":
                     updated_id = response.json()["id"]
