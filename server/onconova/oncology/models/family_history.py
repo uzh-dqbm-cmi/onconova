@@ -85,8 +85,8 @@ class FamilyHistory(BaseModel):
 
     @property
     def description(self):
-        if self.relationship.display:
-            relationship = self.relationship.display.title()
+        if relationship := self.relationship.display:
+            relationship = relationship[0].upper() + relationship[1:].lower()
         condition = ""
         if self.had_cancer:
             if self.topography and self.topography.display:
