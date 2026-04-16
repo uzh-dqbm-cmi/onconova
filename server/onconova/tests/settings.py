@@ -2,6 +2,10 @@
 import pgtrigger
 
 from onconova.settings import *
+import factory.random
+
+# Ensure a consistent factory engine
+factory.random.reseed_random("onconova-test")
 
 INSTALLED_APPS += [
     "onconova.tests",
@@ -33,3 +37,8 @@ LOGGING = {
         },
     },
 }
+
+
+PASSWORD_HASHERS = [
+    "django.contrib.auth.hashers.MD5PasswordHasher",
+]

@@ -21,7 +21,8 @@ import traceback
 from pathlib import Path
 from typing import List, Tuple
 
-from fhircraft.fhir.resources.factory import factory
+from fhircraft.fhir.resources.factory import FHIRModelFactory
+from fhircraft.config import override_config
 from fhircraft.fhir.resources.generator import generate_resource_model_code
 
 # Configure logging
@@ -31,6 +32,8 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 logger = logging.getLogger(__name__)
+
+factory = FHIRModelFactory(fhir_release="R4")
 
 # Constants
 FHIR_PACKAGES = [
@@ -129,15 +132,16 @@ def configure_fhir_factory(input_dir: Path, files: List[Path]) -> None:
         if filename.endswith(".json") and STRUCTURE_DEFINITION_PREFIX in filename
     ]
 
-    factory.configure_repository(files=list(repository_files))
+    with override_config(validation_mode="skip", disable_fhir_warnings=True):
+        for repo_file in repository_files + files:
+            logger.debug(f"Adding repository file: {repo_file}")
+            with open(repo_file, "r", encoding="utf-8") as f:
+                factory.register(json.load(f))
 
-    logger.info("Loading required FHIR packages...")
-    for package_name, version in FHIR_PACKAGES:
-        logger.debug(f"Loading package: {package_name} v{version}")
-        factory.load_package(package_name, version)
-
-    logger.info("Loading local input package...")
-    factory.repository.load_from_files(*files)
+        logger.info("Loading required FHIR packages...")
+        for package_name, version in FHIR_PACKAGES:
+            logger.debug(f"Loading package: {package_name} v{version}")
+            factory.register_package(package_name, version, skip_invalid=True)
 
 
 def process_structure_definition(
@@ -154,47 +158,49 @@ def process_structure_definition(
     Returns:
         Tuple of (success: bool, output_filename: str)
     """
-    filename = input_path.name
-    logger.info(f"Processing {filename}...")
+    with override_config(validation_mode="skip", disable_fhir_warnings=True):
+        filename = input_path.name
+        logger.info(f"Processing {filename}...")
 
-    try:
-        # Load StructureDefinition
-        with open(input_path, "r", encoding="utf-8") as f:
-            structure_definition = json.load(f)
+        try:
+            # Load StructureDefinition
+            with open(input_path, "r", encoding="utf-8") as f:
+                structure_definition = json.load(f)
 
-        # Validate required fields
-        if "url" not in structure_definition:
-            raise ValueError("StructureDefinition missing required 'url' field")
-        if "name" not in structure_definition:
-            raise ValueError("StructureDefinition missing required 'name' field")
+            # Validate required fields
+            if "url" not in structure_definition:
+                raise ValueError("StructureDefinition missing required 'url' field")
+            if "name" not in structure_definition:
+                raise ValueError("StructureDefinition missing required 'name' field")
 
-        # Generate model using fhircraft
-        canonical_url = structure_definition["url"]
-        logger.debug(f"Constructing model for: {canonical_url}")
-        model = factory.construct_resource_model(canonical_url=canonical_url)
-        source_code = generate_resource_model_code(model)
+            # Generate model using fhircraft
+            canonical_url = structure_definition["url"]
+            logger.debug(f"Constructing model for: {canonical_url}")
 
-        # Determine output filename
-        resource_name = structure_definition["name"].replace("Onconova", "")
-        output_filename = f"{resource_name}.py"
-        output_path = output_dir / output_filename
+            model = factory.build(canonical_url=canonical_url, mode="differential")
+            source_code = generate_resource_model_code(model)
 
-        # Write generated code
-        with open(output_path, "w", encoding="utf-8") as out_f:
-            out_f.write(source_code)
+            # Determine output filename
+            resource_name = structure_definition["name"].replace("Onconova", "")
+            output_filename = f"{resource_name}.py"
+            output_path = output_dir / output_filename
 
-        logger.info(f"✓ Generated {output_filename}")
-        return True, output_filename
+            # Write generated code
+            with open(output_path, "w", encoding="utf-8") as out_f:
+                out_f.write(source_code)
 
-    except Exception as e:
-        logger.error(f"✗ Failed to process {filename}: {e}")
-        logger.debug(traceback.format_exc())
+            logger.info(f"✓ Generated {output_filename}")
+            return True, output_filename
 
-        if fail_fast:
-            logger.error("Fail-fast mode enabled. Exiting.")
-            sys.exit(1)
+        except Exception as e:
+            logger.error(f"✗ Failed to process {filename}: {e}")
+            logger.debug(traceback.format_exc())
 
-        return False, ""
+            if fail_fast:
+                logger.error("Fail-fast mode enabled. Exiting.")
+                sys.exit(1)
+
+            return False, ""
 
 
 def main() -> None:

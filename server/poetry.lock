@@ -619,6 +619,21 @@ django = "*"
 typing-extensions = "*"
 
 [[package]]
+name = "execnet"
+version = "2.1.2"
+description = "execnet: rapid multi-Python deployment"
+optional = false
+python-versions = ">=3.8"
+groups = ["dev"]
+files = [
+    {file = "execnet-2.1.2-py3-none-any.whl", hash = "sha256:67fba928dd5a544b783f6056f449e5e3931a5c378b128bc18501f7ea79e296ec"},
+    {file = "execnet-2.1.2.tar.gz", hash = "sha256:63d83bfdd9a23e35b9c6a3261412324f964c2ec8dcd8d3c6916ee9373e0befcd"},
+]
+
+[package.extras]
+testing = ["hatch", "pre-commit", "pytest", "tox"]
+
+[[package]]
 name = "factory-boy"
 version = "3.3.1"
 description = "A versatile test fixtures replacement based on thoughtbot's factory_bot for Ruby."
@@ -657,20 +672,21 @@ tzdata = ["tzdata"]
 
 [[package]]
 name = "fhircraft"
-version = "0.4.2"
+version = "0.8.3"
 description = "Fhircraft transforms FHIR (Fast Healthcare Interoperability Resources) specifications into type-safe Python models using Pydantic. Build healthcare applications with automatic validation, intelligent code completion, and seamless integration with Python's ecosystem."
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "fhircraft-0.4.2-py3-none-any.whl", hash = "sha256:c048e9c418ce7736e0dbbfcd51879f80e9c1862ff4d09c3b55814d7a93188218"},
-    {file = "fhircraft-0.4.2.tar.gz", hash = "sha256:056a4a2f2723ebb76fa6833aef68bb78b49f2bb76502c1286e7c393ec3ebcb59"},
+    {file = "fhircraft-0.8.3-py3-none-any.whl", hash = "sha256:c79f59b73ce1614049ff1a5ea0c780f4784f9e66a776181ab23bb013c4fde843"},
+    {file = "fhircraft-0.8.3.tar.gz", hash = "sha256:60fc24009146eccdabc70ad6f72f7d9019eee9fbb6c2380853342621c2868ac1"},
 ]
 
 [package.dependencies]
 jinja2 = ">=3.1"
 jsonpath-ng = ">1"
 jsonschema = ">4"
+packaging = ">=25"
 pint = ">=0.24"
 ply = ">=3.11"
 pydantic = ">=2.7"
@@ -681,7 +697,7 @@ requests = "*"
 [package.extras]
 cli = ["typer (==0.12.3)"]
 dev = ["coverage (==7.5.1)", "parameterized (==0.9.0)", "pytest (>=8.2)", "pytest-mock (==3.14.0)"]
-docs = ["mkdocs-gen-files (==0.5.0)", "mkdocs-literate-nav (==0.6.1)", "mkdocs-material (==9.5.27)", "mkdocstrings[python] (==0.26.1)"]
+docs = ["griffe-fieldz (==0.4.0)", "mkdocs-gen-files (==0.5.0)", "mkdocs-literate-nav (==0.6.1)", "mkdocs-material (==9.5.27)", "mkdocstrings[python] (==0.26.1)"]
 
 [[package]]
 name = "flexcache"
@@ -1424,6 +1440,27 @@ pytest = "*"
 six = "*"
 
 [[package]]
+name = "pytest-xdist"
+version = "3.8.0"
+description = "pytest xdist plugin for distributed testing, most importantly across multiple CPUs"
+optional = false
+python-versions = ">=3.9"
+groups = ["dev"]
+files = [
+    {file = "pytest_xdist-3.8.0-py3-none-any.whl", hash = "sha256:202ca578cfeb7370784a8c33d6d05bc6e13b4f25b5053c30a152269fd10f0b88"},
+    {file = "pytest_xdist-3.8.0.tar.gz", hash = "sha256:7e578125ec9bc6050861aa93f2d59f1d8d085595d6551c2c90b6f4fad8d3a9f1"},
+]
+
+[package.dependencies]
+execnet = ">=2.1"
+pytest = ">=7.0.0"
+
+[package.extras]
+psutil = ["psutil (>=3.0)"]
+setproctitle = ["setproctitle"]
+testing = ["filelock"]
+
+[[package]]
 name = "python-dotenv"
 version = "1.2.1"
 description = "Read key-value pairs from a .env file and set them as environment variables"
@@ -1855,4 +1892,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "~=3.11"
-content-hash = "2697db79728964d22559c5e6e917e2dcf37f1e1756aab3b729f2260638b8702c"
+content-hash = "9f3b31ac7a58aaa342bc598847bd79bfdffa9c2615a18ba2653423cd2641ae05"

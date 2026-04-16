@@ -59,20 +59,19 @@ class FhirCrudApiControllerTestCase(ApiControllerTestMixin, TestCase):
             if not isinstance(cls.SCHEMA, list)
             else cls.SCHEMA
         )
-
-    def setUp(self):
-        super().setUp()
-        self.instances = []
-        self.create_payloads = []
-        self.update_payloads = []
-        for factory, schema in zip(self.factories, self.create_schemas):
-            with pghistory.context(username=self.user.username):
+        cls.instances = []
+        cls.create_payloads = []
+        cls.update_payloads = []
+        for factory, schema in zip(cls.factories, cls.create_schemas):
+            with pghistory.context(username=cls.user.username):
                 instance1, instance2 = factory.create_batch(2)
-                self.instances.append(instance1)
-                self.create_payloads.append(
+                if hasattr(cls, "post_factory_hook"):
+                    instance1, instance2 = cls.post_factory_hook(instance1, instance2)
+                cls.instances.append(instance1)
+                cls.create_payloads.append(
                     schema.model_validate(instance1).model_dump(mode="json")
                 )
-                self.update_payloads.append(
+                cls.update_payloads.append(
                     schema.model_validate(instance2).model_dump(mode="json")
                 )
                 instance2.delete()
@@ -96,7 +95,11 @@ class FhirCrudApiControllerTestCase(ApiControllerTestMixin, TestCase):
             if scenario == "HTTPS Authenticated":
                 self.assertEqual(response.status_code, 200)
                 expected = schema.model_validate(instance).model_dump()
-                result = schema.model_validate(response.json()).model_dump()
+                for c in expected.get("contained", []):
+                    c.pop("meta", None)
+                result = response.json()
+                for c in result.get("contained", []):
+                    c.pop("meta", None)
                 self.assertEqual(
                     result,
                     expected,
