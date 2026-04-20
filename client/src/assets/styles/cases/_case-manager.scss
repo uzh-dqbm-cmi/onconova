@@ -1,47 +1,246 @@
+/* ===== Error State ===== */
 .case-manager-error {
     display: flex;
     align-items: center;
     gap: 1rem;
-    background: #ffeaea;
-    color: #c0392b;
+    background: color-mix(in srgb, var(--p-red-500), transparent 90%);
+    color: light-dark(var(--p-red-700), var(--p-red-400));
     padding: 1.5rem;
     border-radius: 1rem;
     font-size: 1.2rem;
     margin-bottom: 2rem;
-    box-shadow: 0 2px 8px rgba(192,57,43,0.08);
+    border: 1px solid color-mix(in srgb, var(--p-red-500), transparent 70%);
 }
 
-
-.case-manager-header {
-    display: flex; 
+/* ===== Action Bar ===== */
+.case-manager-action-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     flex-wrap: wrap;
-    flex-direction: row;    
-    row-gap: 1rem;
-    background: var(--p-content-background); 
-    color: var(--p-text-color); 
-    margin: 1rem inherit;
-    border-radius: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    padding: 1rem; 
-    margin-bottom: 2rem;
-    backdrop-filter: blur(6px);
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: var(--p-content-background);
+    border-radius: 1rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--p-surface-border);
+}
 
-    & .onconova-cancer-icon {
-        scale: .8;
+/* ===== Header Card ===== */
+.case-manager-header {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    background: var(--p-content-background);
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
+    
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--p-primary-500), transparent 82%);
+    position: relative;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 4px;
+        background: linear-gradient(180deg, var(--p-primary-400), var(--p-primary-600));
+        z-index: 1;
+    }
+
+    & .case-manager-header-identity {
+        min-width: 220px;
+        max-width: 300px;
+        padding: 1.5rem;
+        border-right: 1px solid var(--p-divider-border-color);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    & .case-manager-header-summary {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        & onconova-identicon {
+            flex-shrink: 0;
+        }
+
+        & .case-manager-patient-info {
+            & h2 {
+                font-size: 1.3rem;
+                font-weight: 700;
+                letter-spacing: 0.02em;
+                color: var(--p-primary-color);
+                margin: 0 !important;
+            }
+            & .case-manager-demographics {
+                font-size: 0.875rem;
+                margin-top: 0.25rem;
+            }
+        }
+    }
+
+    & .case-manager-header-stats {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: stretch;
+    }
+
+    & .header-stat-group {
+        padding: 1rem 1.25rem;
+        border-right: 1px solid color-mix(in srgb, var(--p-primary-500), transparent 82%);
+        border-bottom: 1px solid color-mix(in srgb, var(--p-primary-500), transparent 82%);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 0.1rem;
+        flex: 1 1 130px;
+
+        &.header-stat-group--cancer {
+            flex: 2 1 200px;
+        }
+
+        & .header-cancer-icon {
+            height: 2.25rem !important;
+            padding: 0.4rem !important;
+            align-self: flex-start;
+        }
+
+        & .header-cancer-cell {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        & .header-cancer-labels {
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+            min-width: 0;
+        }
+
+        & .header-stat-title {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        & .header-stat-value {
+            font-weight: 400;
+            font-size: 0.9rem;
+            margin-top: 0.1rem;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+
+        & .contributors-avatars {
+            scale: 0.85;
+            transform-origin: left;
+            margin-top: 0.25rem;
+        }
+    }
+
+    & .case-redacted-badge,
+    & .case-anonymization-badge,
+    & .case-consent-badge {
+        & i {
+            line-height: 1;
+            font-size: 0.75rem;
+            vertical-align: middle;
+        }
+    }
+
+    & .case-redacted-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.1rem 0.5rem;
+        border-radius: 1rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+        background: transparent;
+        border: 1px solid var(--p-text-muted-color);
+        color: var(--p-text-muted-color);
+    }
+
+    & .case-anonymization-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.1rem 0.5rem;
+        border-radius: 1rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+        background: transparent;
+        border: 1px solid var(--p-text-muted-color);
+        color: var(--p-text-muted-color);
+
+        &.case-anonymization-original {
+            border-color: var(--p-primary-color);
+            color: var(--p-primary-color);
+        }
+    }
+
+    & .case-consent-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.1rem 0.5rem;
+        border-radius: 1rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+        background: transparent;
+        border: 1px solid var(--p-text-muted-color);
+        color: var(--p-text-muted-color);
+
+        &.case-consent-valid {
+            border-color: var(--p-primary-color);
+            color: var(--p-primary-color);
+        }
+    }
+
+    @media (max-width: 900px) {
+        grid-template-columns: 1fr;
+
+        & .case-manager-header-identity {
+            max-width: unset;
+            border-right: none;
+            border-bottom: 1px solid var(--p-divider-border-color);
+        }
     }
 }
 
+/* ===== Data Category Fieldsets ===== */
 .onconova-case-manager-group-panel {
     background: light-dark(var(--p-surface-0), var(--p-surface-900));
+
     & fieldset {
-        padding-bottom: .0rem !important;
-        margin-bottom: 1rem !important;
-        border-color: color-mix(in srgb, var(--p-primary-500), transparent 60%) !important;
+        padding-bottom: 0 !important;
+        margin-bottom: 1.25rem !important;
+        border-color: color-mix(in srgb, var(--p-primary-500), transparent 75%) !important;
+        border-radius: 1rem !important;
+        transition: box-shadow 0.2s;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+
+        &:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
     }
+
     & legend {
-        margin-bottom: .25rem;
+        margin-bottom: 0.25rem;
         background: none !important;
         color: var(--p-primary-500) !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.06em !important;
+        text-transform: uppercase;
+        font-size: 0.75rem !important;
     }
 }
 
@@ -55,44 +254,84 @@ onconova-case-manager-panel {
         padding: 0.375rem 0rem !important;
     }
     & .p-panel-header {
-        & .p-avatar{
-            line-height: 0.25;
-            padding: 1rem;
+        padding: 0.6rem 0.25rem !important;
+
+        & .p-avatar {
+            flex-shrink: 0;
+            border-radius: 8px !important;
+            background: color-mix(in srgb, var(--p-primary-500), transparent 80%) !important;
+            border: 1.5px solid color-mix(in srgb, var(--p-primary-500), transparent 62%) !important;
+            color: var(--p-primary-color) !important;
+            padding: 0.45rem !important;
+            line-height: 1 !important;
+
+            > lucide-angular {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                > svg {
+                    width: 1.2rem;
+                    height: 1.2rem;
+                }
+            }
         }
-        & .p-avatar{
-            line-height: 0.25;
-            padding: 1rem;
-            background-color: color-mix(in srgb, var(--p-primary-500), transparent 80%) !important;
-            color: var(--p-primary-500) !important;
-        }
+
         & .onconova-case-manager-header-title {
-            font-size: 1.1rem; 
-            font-weight: 500; 
+            font-size: 1rem;
+            font-weight: 600;
+            letter-spacing: 0.01em;
         }
+
         & .pi-star-fill {
             color: var(--p-primary-color) !important;
+            font-size: 0.82rem;
         }
+
         & .onconova-case-manager-counter-badge {
             color: light-dark(var(--p-primary-600), var(--p-primary-400)) !important;
             background-color: color-mix(in srgb, var(--p-primary-400), transparent 80%) !important;
+            border: 1px solid color-mix(in srgb, var(--p-primary-500), transparent 65%) !important;
+            font-weight: 700 !important;
+            border-radius: 999px !important;
         }
+
         & .onconova-case-manager-menu-button-container {
             margin-left: auto;
-            margin-top: auto;
-            margin-bottom: auto;
+            display: flex;
+            align-items: center;
+            gap: 0.1rem;
         }
+
         & .onconova-case-manager-menu-button {
             cursor: pointer;
-            margin-left: .75rem;
-            color: var(--p-button-text-secondary-color) !important;
+            padding: 0.28rem 0.38rem;
+            border-radius: 6px;
+            color: var(--p-text-muted-color) !important;
+            font-size: 0.85rem;
+            transition: background 0.15s, color 0.15s;
+
+            &:hover {
+                background: color-mix(in srgb, var(--p-primary-500), transparent 84%);
+                color: var(--p-primary-color) !important;
+            }
         }
     }
     & .panel-content {
         padding-bottom: 0;
 
-        & .no-entries-text {
-            margin-left: 1rem;
-            color: color-mix(in srgb, var(--p-text-muted-color), transparent 25%);
+        & .no-entries-state {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.6rem 1rem 0.75rem;
+            color: color-mix(in srgb, var(--p-muted-color), transparent 20%);
+            font-size: 0.8rem;
+            font-style: italic;
+
+            & .no-entries-icon {
+                flex-shrink: 0;
+                opacity: 0.55;
+            }
         }
     }
 
@@ -101,106 +340,623 @@ onconova-case-manager-panel {
         display: block;
     }
 
+    // ── Timeline ──────────────────────────────────────────────────
+    & .p-timeline {
+        padding: 0rem 0.25rem 0.4rem;
+    }
+
     & .p-timeline-event {
         min-height: unset;
 
         & .p-timeline-event-opposite {
             display: none !important;
         }
-        & .p-timeline-event-content {
-            padding-bottom: .75rem !important;
 
+        // Primary dot with glow ring
+        & .p-timeline-event-marker {
+            width: 0.55rem !important;
+            height: 0.55rem !important;
+            border-radius: 50% !important;
+            background: var(--p-primary-color) !important;
+            border: none !important;
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-primary-500), transparent 70%) !important;
+            margin-top: 0.3rem;
+            flex-shrink: 0;
+        }
+
+        // Muted 1px connector
+        & .p-timeline-event-connector {
+            background: var(--p-content-border-color) !important;
+            width: 1px !important;
+        }
+
+        & .p-timeline-event-content {
+            padding: 0 0 1.25rem 0.9rem !important;
+
+            // Date / timestamp label
+            & .onconova-case-manager-panel-timeline-event-date {
+                font-size: 0.7rem;
+                font-weight: 700;
+                color: var(--p-primary-color) !important;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                line-height: 1.4;
+                margin-bottom: 0.45rem;
+                opacity: 0.9;
+            }
+
+            // Group of events under a date
+            & .flex.flex-column {
+                gap: 0.2rem !important;
+            }
+
+            // Individual event row
             & .onconova-case-manager-panel-timeline-event-entry {
                 display: flex;
                 align-items: flex-start;
+                gap: 0;
+                padding: 0.38rem 0.55rem 0.38rem 0;
+                border-radius: 8px;
+                border: 1px solid transparent;
+                cursor: pointer;
+                transition: background 0.15s, border-color 0.15s, padding-left 0.15s;
+
                 &:hover {
+                    padding-left: 0.45rem;
+                    background: color-mix(in srgb, var(--p-primary-500), transparent 91%);
+                    border-color: color-mix(in srgb, var(--p-primary-500), transparent 70%);
                     color: var(--p-primary-color) !important;
-                    & .onconova-case-manager-panel-timeline-event-icon{
+
+                    & .onconova-case-manager-panel-timeline-event-icon {
                         background: var(--p-primary-color) !important;
                     }
                 }
             }
-            & .onconova-case-manager-panel-timeline-event-date {
-                color: var(--p-text-muted-color) !important;
-                font-weight: 550;
-                text-transform: uppercase;
-                line-height: 1.2;
-            }
-            & .onconova-case-manager-panel-timeline-event-description,
-              onconova-tumor-marker-event,
-              onconova-therapy-line-event,
-              onconova-multiline-event,
-              onconova-neoplastic-entity-event {
-                width: 100%;
-            }
+
+            // Thin left accent bar
             & .onconova-case-manager-panel-timeline-event-icon {
-                background: var(--p-divider-border-color);
-                height: stretch;
-                color: var(--p-primary-color);
-                width: .5rem;
+                flex-shrink: 0;
+                background: color-mix(in srgb, var(--p-primary-500), transparent 58%);
+                width: 0.2rem;
+                min-height: 1rem;
+                align-self: stretch;
                 border-radius: 4rem;
-                margin-right: 0.5rem;
+                margin-right: 0.6rem;
+                transition: background 0.15s;
             }
+
             & lucide-angular.onconova-case-manager-panel-timeline-event-icon svg {
                 height: 1rem;
                 width: 1rem;
             }
+
+            & .onconova-case-manager-panel-timeline-event-description,
+              onconova-tumor-marker-event,
+              onconova-therapy-line-event,
+              onconova-multiline-event,
+              onconova-neoplastic-entity-event,
+              onconova-genomic-variant-event,
+              onconova-performance-status-event,
+              onconova-lifestyle-event,
+              onconova-genomic-signature-event,
+              onconova-vitals-event,
+              onconova-adverse-event-event {
+                flex: 1;
+                min-width: 0;
+                width: 100%;
+                font-size: 0.875rem;
+            }
         }
     }
 
+    // ── View toggle (graph / list) ────────────────────────────────
+    & .timeline-view-toggle {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.15rem;
+        margin-bottom: 0.2rem;
+        padding-right: 0.1rem;
+
+        .timeline-toggle-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.75rem;
+            height: 1.75rem;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            background: transparent;
+            color: var(--p-text-muted-color);
+            cursor: pointer;
+            font-size: 0.7rem;
+            transition: background 0.15s, color 0.15s, border-color 0.15s;
+
+            &:hover {
+                background: color-mix(in srgb, var(--p-primary-500), transparent 88%);
+                color: var(--p-primary-color);
+            }
+
+            &.active {
+                background: color-mix(in srgb, var(--p-primary-500), transparent 80%);
+                border-color: color-mix(in srgb, var(--p-primary-500), transparent 58%);
+                color: var(--p-primary-color);
+            }
+        }
+    }
+
+    // ── Vitals time-series chart ──────────────────────────────────
+    onconova-vitals-timeline-chart {
+        display: block;
+        padding: 0.25rem 0 0.15rem;
+    }
+
+    .vitals-chart-svg {
+        display: block;
+        overflow: visible;
+
+        .vitals-band-even {
+            fill: color-mix(in srgb, var(--p-primary-500), transparent 96%);
+        }
+
+        .vitals-band-odd {
+            fill: transparent;
+        }
+
+        .vitals-grid-line {
+            stroke: var(--p-content-border-color);
+            stroke-width: 0.5;
+            stroke-dasharray: 2,3;
+        }
+
+        .vitals-ytick-line {
+            stroke: color-mix(in srgb, var(--p-primary-500), transparent 78%);
+            stroke-width: 0.5;
+            stroke-dasharray: 3,3;
+        }
+
+        .vitals-ytick-label {
+            font-size: 7.5px;
+            fill: var(--p-text-muted-color);
+            text-anchor: end;
+            dominant-baseline: middle;
+            user-select: none;
+        }
+
+        .vitals-series-path {
+            stroke: var(--p-primary-color);
+            stroke-width: 1.5;
+            opacity: 0.85;
+            stroke-linejoin: round;
+            stroke-linecap: round;
+        }
+
+        .vitals-dot {
+            fill: var(--p-primary-color);
+            stroke: var(--p-content-background);
+            stroke-width: 1.5;
+        }
+
+        .vitals-series-label {
+            font-size: 9px;
+            font-weight: 700;
+            text-anchor: middle;
+            dominant-baseline: middle;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            user-select: none;
+            fill: var(--p-text-muted-color);
+        }
+
+        .vitals-date-label {
+            font-size: 8px;
+            fill: var(--p-text-muted-color);
+            text-anchor: middle;
+            dominant-baseline: auto;
+            user-select: none;
+        }
+
+        .vitals-click-zone {
+            cursor: pointer;
+            fill: transparent;
+            transition: fill 0.1s;
+
+            &:hover {
+                fill: color-mix(in srgb, var(--p-primary-500), transparent 88%);
+            }
+        }
+    }
+
+    // ── Vitals list mode (VitalsEventComponent) ───────────────────
+    onconova-vitals-event {
+        .vitals-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.12rem;
+
+            .vitals-list-row {
+                display: flex;
+                align-items: baseline;
+                gap: 0.5rem;
+
+                .vitals-list-label {
+                    font-size: 0.65rem;
+                    font-weight: 400;
+                    letter-spacing: 0.07em;
+                    color: var(--p-text-muted-color);
+                    min-width: 4rem;
+                    text-transform: uppercase;
+                    flex-shrink: 0;
+                }
+
+                .vitals-list-value {
+                    font-size: 0.82rem;
+                }
+            }
+        }
+
+        .vitals-dotline {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            padding: 0.2rem 0 0.1rem;
+            width: 100%;
+
+            .vitals-dotline-row {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                width: 100%;
+
+                .vitals-dotline-label {
+                    font-size: 0.62rem;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                    color: var(--p-text-muted-color);
+                    min-width: 4.5rem;
+                    flex-shrink: 0;
+                    text-align: right;
+                }
+
+                .vitals-dotline-track {
+                    position: relative;
+                    flex: 1;
+                    height: 2px;
+                    background: color-mix(in srgb, var(--p-primary-500), transparent 82%);
+                    border-radius: 2px;
+
+                    .vitals-dotline-fill {
+                        position: absolute;
+                        left: 0;
+                        top: 0;
+                        height: 100%;
+                        background: var(--p-primary-color);
+                        border-radius: 2px;
+                        opacity: 0.7;
+                    }
+
+                    .vitals-dotline-dot {
+                        position: absolute;
+                        top: 50%;
+                        transform: translate(-50%, -50%);
+                        width: 7px;
+                        height: 7px;
+                        border-radius: 50%;
+                        background: var(--p-primary-color);
+                        border: 1.5px solid var(--p-content-background);
+                        box-shadow: 0 0 0 1.5px var(--p-primary-color);
+                    }
+                }
+
+                .vitals-dotline-value {
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                    color: var(--p-text-color);
+                    white-space: nowrap;
+                    min-width: 5.5rem;
+                }
+            }
+        }
+    }
 }
 
 
 
 .onconova-case-manager-drawer {
-    min-width: 25% !important;
+    min-width: 32rem !important;
+    max-width: 48rem !important;
 
+    // ── Header ────────────────────────────────────────────────────
     & .p-drawer-header {
         justify-content: flex-start;
         display: flex !important;
         align-items: center;
-        gap: .5rem;
-        & p-avatar {
-            background: color-mix(in srgb, var(--p-primary-500), transparent 75%);
-            color: var(--p-primary-500);
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--p-content-border-color);
+        background: linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--p-primary-500), transparent 93%) 0%,
+            transparent 60%
+        );
+
+        .dark-mode & {
+            background: linear-gradient(
+                135deg,
+                color-mix(in srgb, var(--p-primary-500), transparent 80%) 0%,
+                transparent 65%
+            );
+        }
+
+        .drawer-header-identity {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .drawer-header-avatar {
+            flex-shrink: 0;
+            background: color-mix(in srgb, var(--p-primary-500), transparent 82%) !important;
+            border: 1.5px solid color-mix(in srgb, var(--p-primary-500), transparent 65%) !important;
+            border-radius: 10px !important;
+
             > lucide-angular {
-                width: var(--p-avatar-lg-width); 
-                text-align: center;
-                scale: 1.2;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: var(--p-avatar-xl-width);
+                height: var(--p-avatar-xl-width);
+                color: var(--p-primary-color);
                 > svg {
-                    margin: auto;
-                    display: flex;
+                    width: 60%;
+                    height: 60%;
                 }
             }
         }
-        .onconova-drawer-title {
-            margin: auto 0;
-            margin-right: auto;
+
+        .drawer-header-text {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .drawer-header-resource-type {
+            font-size: 0.63rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
             color: var(--p-primary-color);
+            opacity: 0.8;
+            margin-bottom: 0.15rem;
+            line-height: 1;
+        }
+
+        .onconova-drawer-title {
+            color: var(--p-text-color);
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: 1rem;
+            line-height: 1.35;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .drawer-header-subtitle {
+            margin-top: 0rem;
+        }
+
+        .drawer-anon-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.68rem;
+            font-weight: 600;
+            padding: 0.15rem 0.55rem;
+            border-radius: 999px;
+            letter-spacing: 0.03em;
+            background: transparent;
+            color: var(--p-text-muted-color);
+            border: 1px solid color-mix(in srgb, var(--p-text-muted-color), transparent 55%);
+
+            &.drawer-anon-badge--pseudo {
+                background: color-mix(in srgb, var(--p-primary-500), transparent 88%);
+                color: var(--p-primary-color);
+                border-color: color-mix(in srgb, var(--p-primary-500), transparent 65%);
+            }
+
+            i {
+                font-size: 0.65rem;
+                line-height: 1;
+                vertical-align: middle;
+            }
         }
     }
+
+    // ── Content area ─────────────────────────────────────────────
+    & .p-drawer-content {
+        padding-top: 1.75rem !important;
+    }
+
+    // Section headers (replacing p-dividers)
+    .drawer-section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.67rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.09em;
+        color: var(--p-text-muted-color);
+        margin: 1.5rem 0 0.75rem;
+
+        &:first-child {
+            margin-top: 0;
+        }
+
+        &::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--p-content-border-color);
+            margin-left: 0.25rem;
+        }
+
+        i {
+            font-size: 0.7rem;
+        }
+    }
+
+    // ── Properties ───────────────────────────────────────────────
+    // Base label style (also used in coded-concept tree)
     .property-label {
-        margin-bottom: .25rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--p-text-muted-color);
+        line-height: 1.5;
     }
+
     & onconova-drawer-properties {
+        // Card container for the top-level properties list
+        & .properties-list {
+            border: 1px solid var(--p-content-border-color);
+            border-radius: 10px;
+            overflow: hidden;
+            // Use surface-card which correctly maps to dark/light theme
+            background: var(--p-surface-card);
+
+            // Nested properties-list — strip card treatment
+            & .properties-list {
+                border: none;
+                border-radius: 0;
+                background: transparent;
+                overflow: visible;
+            }
+        }
+
+        // Each property row (label | value)
         & .property {
-            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.55rem 1rem;
+            border-bottom: 1px solid color-mix(in srgb, var(--p-content-border-color), transparent 30%);
+
+            &:last-child {
+                border-bottom: none;
+            }
+
+            // Alternating rows — use surface-ground which is a darker tint in both modes
+            &:nth-child(even) {
+                background: color-mix(in srgb, var(--p-surface-ground), transparent 40%);
+            }
+
+            // Label column — fixed width so any slight length difference doesn't shift values
+            & > .property-label {
+                width: 7rem;
+                flex-shrink: 0;
+                padding-top: 0.1rem;
+                margin-bottom: 0;
+                overflow-wrap: anywhere;
+            }
+
+            // Value column
+            & > .property-value {
+                flex: 1;
+                min-width: 0;
+                font-size: 0.875rem;
+                line-height: 1.5;
+                color: var(--p-text-color);
+                word-break: break-word;
+            }
         }
+
+        // Nested object rows inside a value cell — lighter treatment
+        & .property-value > onconova-drawer-properties {
+            & .property {
+                padding: 0.35rem 0.75rem;
+                background: transparent !important;
+                border-bottom-color: color-mix(in srgb, var(--p-content-border-color), transparent 55%);
+            }
+        }
+
+        // List property (array items)
         & ul.list-property {
-            padding-left: .25rem;
-            margin-top: .25rem;
+            padding-left: 0;
+            margin: 0.25rem 0 0.1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
         }
+
         & ul.list-property > li {
             list-style: none;
         }
-        & .nested-properties {
-            margin-left: .45rem;
-            padding-left: .5rem;
-            padding-top: .5rem;
-            border-left: .1rem solid color-mix(in srgb, var(--p-content-color), transparent 55%);
+
+        & .list-item-header {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            margin-bottom: 0.4rem;
         }
+
+        & .list-item-index {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 1.35rem;
+            height: 1.35rem;
+            padding: 0 0.3rem;
+            border-radius: 999px;
+            background: color-mix(in srgb, var(--p-primary-500), transparent 85%);
+            color: var(--p-primary-color);
+            font-size: 0.65rem;
+            font-weight: 700;
+            line-height: 1;
+            border: 1px solid color-mix(in srgb, var(--p-primary-500), transparent 68%);
+        }
+
+        & .list-item-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--p-text-muted-color);
+        }
+
+        // Nested properties (inside array items) — stacked layout to fit narrow drawer space
+        & .nested-properties {
+            margin-left: 0.45rem;
+            padding-left: 0.6rem;
+            border-left: 2px solid color-mix(in srgb, var(--p-primary-500), transparent 68%);
+
+            & .properties-list {
+                border: none;
+                border-radius: 0;
+                background: transparent;
+                overflow: visible;
+            }
+
+            & .property {
+                flex-direction: column;
+                gap: 0.15rem;
+                padding: 0.35rem 0.5rem;
+                background: transparent !important;
+                border-bottom-color: color-mix(in srgb, var(--p-content-border-color), transparent 50%);
+
+                // In stacked mode label fills full width
+                & > .property-label {
+                    width: auto;
+                }
+
+                & > .property-value {
+                    font-size: 0.82rem;
+                }
+            }
+        }
+
+        // Coded concept tree overrides
         & onconova-coded-concept-tree {
             & .p-tree-root {
                 margin-left: -1.5rem;
@@ -218,29 +974,139 @@ onconova-case-manager-panel {
         }
     }
 
+    // ── Metadata card ────────────────────────────────────────────
+    .onconova-case-manager-drawer-metadata {
+        border: 1px solid var(--p-content-border-color);
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .drawer-meta-row {
+        display: flex;
+        align-items: baseline;
+        gap: 0.75rem;
+    }
+
+    .drawer-meta-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--p-text-muted-color);
+        white-space: nowrap;
+        flex-shrink: 0;
+        min-width: 8rem;
+    }
+
+    .drawer-meta-value {
+        font-size: 0.8rem;
+        color: var(--p-text-color);
+        word-break: break-all;
+    }
+
+    // ── History timeline ──────────────────────────────────────────
     & .onconova-case-manager-drawer-history {
-        margin-top: 1rem;
-        & .p-timeline-event{
+        margin-top: 0.5rem;
+
+        // Override PrimeNG connector line to a dashed, muted style
+        .p-timeline-event-connector {
+            background: color-mix(in srgb, var(--p-content-border-color), transparent 20%) !important;
+            width: 1px !important;
+        }
+
+        // Replace default marker with a small primary dot
+        .p-timeline-event-marker {
+            width: 0.55rem !important;
+            height: 0.55rem !important;
+            border-radius: 50% !important;
+            background: var(--p-primary-color) !important;
+            border: none !important;
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--p-primary-500), transparent 80%) !important;
+            margin-top: 0.35rem !important;
+        }
+
+        & .p-timeline-event {
             min-height: fit-content !important;
-            & .timeline-event-category i{
-                scale: .9;
+
+            & .timeline-event-body {
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 1.1rem;
             }
+
             & .timeline-event-date {
-                color: var(--p-primary-faded-color) !important;
+                font-size: 0.7rem;
+                color: var(--p-text-muted-color);
+                line-height: 1.2;
+                letter-spacing: 0.02em;
             }
-            & .p-timeline-event-content {
-                padding-left: .5rem !important;
-                margin-top: -0.5rem !important;
-                display: flex !important;
-                margin-bottom: 1.5rem;
-                & onconova-user-badge {
-                    margin: auto 0;
-                    margin-right: .5rem;
-                    scale: .9;
+
+            & .timeline-event-category {
+                font-size: 0.82rem;
+                font-weight: 500;
+                margin-top: 0.2rem;
+                color: var(--p-text-color);
+                i {
+                    color: var(--p-primary-color);
+                    margin-right: 0.2rem;
+                    font-size: 0.78rem;
                 }
             }
+
+            & .p-timeline-event-content {
+                padding-left: 0.75rem !important;
+                margin-top: 0 !important;
+                display: flex !important;
+                flex-direction: row;
+                align-items: flex-start;
+                gap: 0.6rem;
+                margin-bottom: 0 !important;
+
+                & onconova-user-badge {
+                    flex-shrink: 0;
+                    scale: 0.88;
+                    transform-origin: left top;
+                    margin-top: 0.05rem;
+                }
+            }
+
             & .p-timeline-event-opposite {
                 display: none !important;
+            }
+        }
+    }
+
+    // ── Footer actions ───────────────────────────────────────────
+    & .p-drawer-footer {
+        padding: 1rem 1.25rem;
+
+        .drawer-footer-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            width: 100%;
+
+            // Full-width solid Edit split button
+            .p-splitbutton {
+                width: 100%;
+                display: flex;
+
+                .p-splitbutton-button {
+                    flex: 1;
+                    justify-content: center;
+                    font-size: 0.95rem;
+                    font-weight: 600;
+                    padding-block: 0.75rem !important;
+                }
+            }
+
+            // Full-width secondary Close button
+            p-button .p-button {
+                width: 100%;
+                justify-content: center;
             }
         }
     }
@@ -280,47 +1146,87 @@ onconova-case-manager-panel {
 
 onconova-tumor-marker-event {
     width: 100%;
+
     & .onconova-tumor-marker-event {
         display: flex;
-        gap: 0.75rem;
+        flex-direction: column;
+        gap: 0.3rem;
         width: 100%;
     }
 
+    // The old side-by-side spacer is irrelevant in column layout
+    & .onconova-tumor-marker-event > .flex-grow-1 {
+        display: none;
+    }
+
+    // ── With bar: label | value on one row, bar below ─────────────
     & .label {
         display: flex;
-        gap: .5rem;
-        justify-content: space-between;
         align-items: center;
+        gap: 0.4rem;
     }
 
     & .label-text {
-        font-weight: 500;
-        color: var(--text-color);
+        font-size: 0.82rem;
+        color: var(--p-text-color);
+        min-width: 0;
+
+        // Separator dot only when a bar follows
+        .onconova-tumor-marker-event:has(.bar-container) & {
+            &::after {
+                content: '';
+                display: inline-block;
+                width: 0.3rem;
+                height: 0.3rem;
+                border-radius: 50%;
+                background: var(--p-text-muted-color);
+                vertical-align: middle;
+                margin-left: 0.35rem;
+                opacity: 0.5;
+            }
+        }
     }
 
+    // Value: consistent styling across all cases
+    & .value {
+        font-size: 0.82rem;
+        color: var(--p-primary-color);
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    // ── Bar track ─────────────────────────────────────────────────
     & .bar-container {
         display: flex;
         flex-direction: column;
-        gap: 0.25rem;
+        gap: 0.22rem;
+        width: 75%;
     }
 
     & .bar {
         position: relative;
         display: flex;
-        width: 8rem;
-        height: 0.6rem;
-        border-radius: 4px;
-        overflow: hidden;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        height: 0.42rem;
+        overflow: visible;
     }
 
+    & .bar-segment {
+        height: 100%;
+    }
+    & .bar-segment:first-child {
+        border-radius: 999px 0 0 999px;
+    }
+    & .bar-segment:nth-child(3) {
+        border-radius: 0 999px 999px 0;
+    }
 
     & .bar-segment.bad-segment {
-        background-color: var(--p-divider-border-color);
+        background: color-mix(in srgb, var(--p-text-muted-color), transparent 62%);
     }
 
     & .bar-segment.good-segment {
-        background-color: color-mix(in srgb, var(--p-primary-400), transparent 50%) !important;
+        background: color-mix(in srgb, var(--p-primary-400), transparent 38%);
     }
 
     & .bar-indicator {
@@ -331,17 +1237,350 @@ onconova-tumor-marker-event {
     }
 
     & .bar-circle {
-        width: .5rem;
-        height: .5rem;
+        width: 0.78rem;
+        height: 0.78rem;
         border-radius: 50%;
-        background-color: color-mix(in srgb, var(--p-primary-400), transparent 10%) !important;
+        background: var(--p-content-background);
+        border: 2px solid var(--p-primary-color);
+        box-shadow:
+            0 0 0 2px color-mix(in srgb, var(--p-primary-500), transparent 62%),
+            0 1px 4px rgba(0, 0, 0, 0.18);
     }
 
     & .bar-labels {
         display: flex;
-        color: var(--p-divider-border-color);
         justify-content: space-between;
+        font-size: 0.6rem;
+        letter-spacing: 0.02em;
+        color: var(--p-text-muted-color);
+    }
+}
+
+// ── Systemic Therapy Event ─────────────────────────────────────────────────
+onconova-therapy-line-event {
+    width: 100%;
+
+    .st-event {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        width: 100%;
+    }
+
+    .st-drugs {
+        font-size: 0.85rem;
+        color: var(--p-text-color);
+        line-height: 1.3;
+    }
+
+    .st-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        flex-wrap: wrap;
+    }
+
+    .st-line-chip.p-chip {
+        font-size: 0.68rem !important;
+        padding: 0.05rem 0.4rem !important;
+        height: auto !important;
+        line-height: 1.5 !important;
+    }
+
+    .st-detail {
+        font-size: 0.72rem;
+        color: var(--p-text-muted-color);
+
+        &::before {
+            content: '·';
+            margin-right: 0.35rem;
+            opacity: 0.5;
+        }
+    }
+}
+
+onconova-genomic-variant-event {
+    width: 100%;
+
+    .genomic-variant-event {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        width: 100%;
+    }
+
+    .variant-main-row {
+        display: flex;
+        align-items: center;
+        gap: 0.1rem;
+        flex-wrap: wrap;
+    }
+
+    .variant-gene {
+        font-size: 0.82rem;
+        font-weight: 400;
+        color: var(--p-text-color);
+    }
+
+    .variant-hgvs {
         font-size: 0.75rem;
-        padding: 0 4px;
+        font-weight: 500;
+        font-family: ui-monospace, 'Cascadia Code', monospace;
+        color: var(--p-primary-color);
+        padding: 0.05rem 0.35rem;
+        border-radius: 4px;
+    }
+
+    .variant-significance {
+        font-size: 0.68rem;
+        font-weight: 600;
+        padding: 0.05rem 0.4rem;
+        border-radius: 999px;
+        letter-spacing: 0.03em;
+        white-space: nowrap;
+        background: transparent;
+        color: var(--p-text-muted-color);
+        border: 1px solid color-mix(in srgb, var(--p-text-muted-color), transparent 55%);
+    }
+
+    .variant-sub-row {
+        font-size: 0.7rem;
+        color: var(--p-text-muted-color);
+        letter-spacing: 0.01em;
+    }
+}
+
+// ── Performance Status ─────────────────────────────────────────────────────
+onconova-performance-status-event {
+    width: 100%;
+
+    .ps-event {
+        display: flex;
+        flex-direction: column;
+        gap: 0.18rem;
+        width: 100%;
+    }
+
+    .ps-row {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+    }
+
+    .ps-label {
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--p-text-muted-color);
+        width: 2rem;
+        flex-shrink: 0;
+    }
+
+    // Segmented dot track — score sits inline at the end
+    .ps-track {
+        display: flex;
+        align-items: center;
+        gap: 0.2rem;
+    }
+
+    .ps-dot {
+        width: 0.45rem;
+        height: 0.45rem;
+        border-radius: 50%;
+        flex-shrink: 0;
+        background: color-mix(in srgb, var(--p-primary-500), transparent 80%);
+        border: 1px solid color-mix(in srgb, var(--p-primary-500), transparent 65%);
+        transition: background 0.15s;
+
+        &.active {
+            background: var(--p-primary-color);
+            border-color: var(--p-primary-color);
+            box-shadow: 0 0 0 2px color-mix(in srgb, var(--p-primary-500), transparent 65%);
+        }
+    }
+
+    .ps-score {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--p-primary-color);
+        margin-left: 0.25rem;
+        flex-shrink: 0;
+    }
+}
+
+// ── Neoplastic Entity Event ────────────────────────────────────────────────
+onconova-neoplastic-entity-event {
+    .ne-event {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+
+    .ne-chip.p-chip {
+        font-size: 0.68rem;
+        padding: 0.05rem 0.4rem;
+        height: auto;
+        align-self: flex-start;
+    }
+    .ne-chip.p-chip .p-chip-label {
+        font-size: 0.68rem;
+    }
+}
+
+onconova-lifestyle-event {
+    width: 100%;
+
+    .lifestyle-event {
+        display: flex;
+        flex-direction: column;
+        gap: 0.22rem;
+        width: 100%;
+    }
+
+    .lifestyle-row {
+        display: flex;
+        align-items: baseline;
+        gap: 0.4rem;
+        font-size: 0.82rem;
+        line-height: 1.4;
+    }
+
+    .lifestyle-label {
+        font-size: 0.65rem;
+        font-weight: 400;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--p-text-muted-color);
+        flex-shrink: 0;
+        min-width: 4rem;
+    }
+
+    .lifestyle-value {
+        font-size: 0.82rem;
+        font-weight: 400;
+        color: var(--p-text-color);
+    }
+}
+
+// ── Genomic Signature Event ────────────────────────────────────────────────
+onconova-genomic-signature-event {
+    width: 100%;
+
+    .gs-event {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+        width: 100%;
+    }
+
+    .gs-label {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .gs-label-text {
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: var(--p-text-color);
+    }
+
+    .gs-value {
+        font-size: 0.82rem;
+        color: var(--p-primary-color);
+        white-space: nowrap;
+    }
+
+    .gs-fallback {
+        font-size: 0.82rem;
+        color: var(--p-text-color);
+    }
+
+    // ── Bar track ─────────────────────────────────────────────────
+    .gs-bar-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        width: 75%;
+    }
+
+    .gs-bar {
+        position: relative;
+        display: flex;
+        width: 100%;
+        height: 0.42rem;
+        overflow: visible;
+    }
+
+    .gs-bar-segment {
+        height: 100%;
+        &:first-child { border-radius: 999px 0 0 999px; }
+        &:last-child  { border-radius: 0 999px 999px 0; }
+    }
+
+    .gs-good-segment {
+        background: color-mix(in srgb, var(--p-primary-400), transparent 38%);
+    }
+
+    .gs-bad-segment {
+        background: color-mix(in srgb, var(--p-text-muted-color), transparent 62%);
+    }
+
+    .gs-bar-indicator {
+        position: absolute;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 10;
+    }
+
+    .gs-bar-circle {
+        width: 0.78rem;
+        height: 0.78rem;
+        border-radius: 50%;
+        background: var(--p-content-background);
+        border: 2px solid var(--p-primary-color);
+        box-shadow:
+            0 0 0 2px color-mix(in srgb, var(--p-primary-500), transparent 62%),
+            0 1px 4px rgba(0, 0, 0, 0.18);
+    }
+
+    .gs-bar-tick-row {
+        position: relative;
+        height: 0.85rem;
+    }
+
+    .gs-bar-tick {
+        position: absolute;
+        transform: translateX(-50%);
+        font-size: 0.6rem;
+        color: var(--p-text-muted-color);
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+    }
+}
+
+// ── Adverse Event ─────────────────────────────────────────────────────────
+onconova-adverse-event-event {
+    width: 100%;
+
+    .ae-event {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+        width: 100%;
+    }
+
+    .ae-event-type {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--p-text-color);
+        line-height: 1.3;
+    }
+
+    .ae-event-sub {
+        font-size: 0.75rem;
+        color: var(--p-text-muted-color);
+        line-height: 1.4;
     }
 }

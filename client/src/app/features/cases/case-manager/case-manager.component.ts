@@ -17,6 +17,13 @@ import { NeoplasticEntityEventComponent } from './components/case-manager-panel/
 import { TumorMarkerEventComponent } from './components/case-manager-panel/components/tumor-marker-event.component';
 import { MultilineEventComponent } from './components/case-manager-panel/components/multiline-event.component';
 import { TherapyLineEventComponent } from './components/case-manager-panel/components/therapy-line-event.component';
+import { GenomicVariantEventComponent } from './components/case-manager-panel/components/genomic-variant-event.component';
+import { PerformanceStatusEventComponent } from './components/case-manager-panel/components/performance-status-event.component';
+import { LifestyleEventComponent } from './components/case-manager-panel/components/lifestyle-event.component';
+import { GenomicSignatureEventComponent } from './components/case-manager-panel/components/genomic-signature-event.component';
+import { VitalsEventComponent } from './components/case-manager-panel/components/vitals-event.component';
+import { VitalsTimelineChartComponent } from './components/case-manager-panel/components/vitals-timeline-chart.component';
+import { AdverseEventEventComponent } from './components/case-manager-panel/components/adverse-event-event.component';
 
 import { 
     Ribbon, HeartPulse, Tags, TestTubeDiagonal, Dna, 
@@ -87,6 +94,7 @@ import Board from 'src/assets/images/icons/board';
 import TourDriverConfig from './case-manager.tour';
 import { driver } from 'driver.js';
 import { ExportConfirmDialogComponent } from "../../../shared/components/export-confirm-dialog/export-confirm-dialog.component";
+import { ReplacePipe } from 'src/app/shared/pipes/replace.pipe';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
@@ -109,10 +117,10 @@ import { ConfirmationService, MessageService } from 'primeng/api';
         RatingModule,
         TooltipModule,
         Divider,
-        Knob,
         SkeletonModule,
         IdenticonComponent,
-        ExportConfirmDialogComponent
+        ExportConfirmDialogComponent,        
+        ReplacePipe,
     ],
     providers: [
         ConfirmationService,
@@ -245,6 +253,10 @@ export class CaseManagerComponent {
     public MultilineEventComponent = MultilineEventComponent;
     public TherapyLineEventComponent = TherapyLineEventComponent;
     public TumorMarkerEventComponent = TumorMarkerEventComponent;
+    public GenomicVariantEventComponent = GenomicVariantEventComponent;
+    public PerformanceStatusEventComponent = PerformanceStatusEventComponent;
+    public LifestyleEventComponent = LifestyleEventComponent;
+    public GenomicSignatureEventComponent = GenomicSignatureEventComponent;
     public StagingFormComponent = StagingFormComponent;
     public TumorMarkerFormComponent = TumorMarkerFormComponent;
     public RiskAssessmentFormComponent = RiskAssessmentFormComponent;
@@ -261,6 +273,9 @@ export class CaseManagerComponent {
     public TumorBoardFormComponent = TumorBoardFormComponent;
     public AdverseEventFormComponent = AdverseEventFormComponent;
     public TreatmentResponseFormComponent = TreatmentResponseFormComponent;
+    public VitalsEventComponent = VitalsEventComponent;
+    public VitalsTimelineChartComponent = VitalsTimelineChartComponent;
+    public AdverseEventEventComponent = AdverseEventEventComponent;
 
     public readonly PatientCaseDataCategoryChoices = PatientCaseDataCategoryChoices; 
 

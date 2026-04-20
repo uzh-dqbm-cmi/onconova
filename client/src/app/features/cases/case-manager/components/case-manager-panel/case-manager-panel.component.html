@@ -53,9 +53,11 @@
                     [events]="events" 
                     [icon]="icon()"
                     [customEventComponent]="customEventComponent()"
+                    [graphChartComponent]="graphChartComponent()"
+                    [graphViewEnabled]="graphViewEnabled()"
                     (onEventClick)="showDrawer($event)"/>
             } @else {
-                <div class="text-muted">
+                <div class="ml-3 text-sm text-muted">
                     No entries associated with this case
                 </div>
             }
@@ -69,6 +71,7 @@
     [data]="drawerData" 
     [historyService]="service().history" 
     [icon]="icon()"
+    [resourceType]="title() || 'Unknown category'"
     [editable]="!isCompleted() && !anonymized()"
     [exportable]="canExportData() && anonymized()"
     (delete)="deleteEntry($event)"
