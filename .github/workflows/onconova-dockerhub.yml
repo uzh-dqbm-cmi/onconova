@@ -4,6 +4,10 @@
 name: Docker Hub — build and push
 
 on:
+  # Any pushed tag (`**` matches names with slashes, e.g. release/1.0)
+  push:
+    tags:
+      - "**"
   release:
     types: [published]
   workflow_dispatch:
@@ -14,13 +18,14 @@ on:
         default: latest
 
 env:
-  RELEASE_TAG: ${{ github.event_name == 'release' && github.event.release.tag_name || inputs.image_tag || 'latest' }}
+  # push → ref_name is the tag; release → release tag; manual → input
+  RELEASE_TAG: ${{ github.event_name == 'release' && github.event.release.tag_name || github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && github.ref_name || inputs.image_tag || 'latest' }}
   NAMESPACE: ${{ vars.DOCKERHUB_NAMESPACE || secrets.DOCKERHUB_USERNAME }}
 
 jobs:
   dockerhub-build-and-push:
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'release' && !github.event.release.prerelease && !github.event.release.draft)
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) || (github.event_name == 'release' && !github.event.release.prerelease && !github.event.release.draft)
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -40,7 +45,7 @@ jobs:
             docker.io/${{ env.NAMESPACE }}/onconova-server
           tags: |
             type=raw,value=${{ env.RELEASE_TAG }}
-            type=raw,value=latest,enable=${{ github.event_name == 'release' }}
+            type=raw,value=latest,enable=${{ github.event_name == 'release' || (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) }}
 
       - name: Build and push server image
         uses: docker/build-push-action@v6
@@ -60,7 +65,7 @@ jobs:
             docker.io/${{ env.NAMESPACE }}/onconova-client
           tags: |
             type=raw,value=${{ env.RELEASE_TAG }}
-            type=raw,value=latest,enable=${{ github.event_name == 'release' }}
+            type=raw,value=latest,enable=${{ github.event_name == 'release' || (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) }}
 
       - name: Build and push client image
         uses: docker/build-push-action@v6
