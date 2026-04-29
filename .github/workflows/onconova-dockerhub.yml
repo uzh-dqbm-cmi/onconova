@@ -1,0 +1,79 @@
+# Pushes the same production images as onconova-build-and-push.yml to Docker Hub.
+# Configure repository secrets: DOCKERHUB_USERNAME, DOCKERHUB_TOKEN (access token with read/write).
+# Optional: set a GitHub variable DOCKERHUB_NAMESPACE if the Hub namespace differs from DOCKERHUB_USERNAME.
+name: Docker Hub — build and push
+
+on:
+  # Any pushed tag (`**` matches names with slashes, e.g. release/1.0)
+  push:
+    tags:
+      - "**"
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: Image tag (e.g. 1.0.0 or latest). Defaults to latest for manual runs.
+        required: false
+        default: latest
+
+env:
+  # push → ref_name is the tag; release → release tag; manual → input
+  RELEASE_TAG: ${{ github.event_name == 'release' && github.event.release.tag_name || github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && github.ref_name || inputs.image_tag || 'latest' }}
+  NAMESPACE: ${{ vars.DOCKERHUB_NAMESPACE || secrets.DOCKERHUB_USERNAME }}
+
+jobs:
+  dockerhub-build-and-push:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) || (github.event_name == 'release' && !github.event.release.prerelease && !github.event.release.draft)
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Docker metadata (server)
+        id: meta-server
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            docker.io/${{ env.NAMESPACE }}/onconova-server
+          tags: |
+            type=raw,value=${{ env.RELEASE_TAG }}
+            type=raw,value=latest,enable=${{ github.event_name == 'release' || (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) }}
+
+      - name: Build and push server image
+        uses: docker/build-push-action@v6
+        with:
+          context: server
+          push: true
+          build-contexts: |
+            certificates=./certificates
+          tags: ${{ steps.meta-server.outputs.tags }}
+          labels: ${{ steps.meta-server.outputs.labels }}
+
+      - name: Docker metadata (client)
+        id: meta-client
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            docker.io/${{ env.NAMESPACE }}/onconova-client
+          tags: |
+            type=raw,value=${{ env.RELEASE_TAG }}
+            type=raw,value=latest,enable=${{ github.event_name == 'release' || (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')) }}
+
+      - name: Build and push client image
+        uses: docker/build-push-action@v6
+        with:
+          context: client
+          push: true
+          build-contexts: |
+            plugins=./client/src/plugins
+            certificates=./certificates
+          tags: ${{ steps.meta-client.outputs.tags }}
+          labels: ${{ steps.meta-client.outputs.labels }}
