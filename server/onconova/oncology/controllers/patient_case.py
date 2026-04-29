@@ -5,6 +5,7 @@ from django.conf import settings
 from django.db.models import Exists, OuterRef, Q
 from django.shortcuts import get_object_or_404
 from ninja import Field, Query
+from ninja.errors import HttpError
 from ninja_extra import ControllerBase, api_controller, route
 from ninja_extra.ordering import ordering
 from ninja_extra.pagination import paginate
@@ -20,6 +21,11 @@ from onconova.core.utils import COMMON_HTTP_ERRORS
 from onconova.oncology import (
     models as orm,
     schemas as scm,
+)
+from onconova.oncology.similarity_count import (
+    interpolated_sql_for_case_example_filter,
+    parse_case_example_query_param,
+    patient_cases_queryset_for_case_example,
 )
 
 
@@ -104,6 +110,40 @@ class PatientCaseController(ControllerBase):
                 id_query = id_query | Q(clinical_identifier__icontains=idSearch)
             queryset = queryset.filter(id_query)
         return query.filter(queryset)  # type: ignore
+
+    @route.post(
+        path="/similarity-count",
+        response={200: scm.SimilarityCountResult, **COMMON_HTTP_ERRORS},
+        permissions=[perms.CanViewCases],
+        operation_id="similarityCount",
+    )
+    def similarity_count(
+        self,
+        body: scm.SimilarityCountRequest,
+    ):
+        raw = body.caseExample
+        if isinstance(raw, str):
+            if not raw.strip():
+                raise HttpError(
+                    400,
+                    "caseExample must be a non-empty JSON string when sent as a string.",
+                )
+            try:
+                payload = parse_case_example_query_param(raw.strip())
+            except ValueError as e:
+                raise HttpError(400, str(e)) from e
+        else:
+            payload = raw
+        try:
+            qs = patient_cases_queryset_for_case_example(payload)
+            sql = interpolated_sql_for_case_example_filter(qs)
+            n = qs.count()
+        except ValueError as e:
+            raise HttpError(400, str(e)) from e
+        return scm.SimilarityCountResult(
+            patientCaseCount=n,
+            patientCountSql=sql,
+        )
 
     @route.post(
         path="",

@@ -1,5 +1,6 @@
 import random
 import string
+import uuid
 
 import pghistory
 from django.apps import apps
@@ -392,6 +393,22 @@ class PatientCase(BaseModel):
     @property
     def description(self):
         return f"Onconova Patient Case {self.pseudoidentifier}"
+
+    @classmethod
+    def get_fhir_id_lookup_kwargs(cls, rid: str) -> dict:
+        """
+        Map a FHIR Patient path id to an ORM filter. Accepts UUID primary key or
+        ``pseudoidentifier`` (e.g. bundle ids like ``P-0004523``). ``rid`` must already
+        be normalized (see ``normalize_fhir_resource_id``).
+        """
+        try:
+            uuid.UUID(str(rid))
+        except (ValueError, TypeError, AttributeError):
+            return {"pseudoidentifier": rid}
+        return {"id": rid}
+
+    def matches_alternate_fhir_id(self, normalized_id: str) -> bool:
+        return normalized_id == self.pseudoidentifier
 
     def _generate_random_id(self):
         """

@@ -40,7 +40,7 @@ jobs:
             certificates=./certificates
           tags: |
             ghcr.io/${{ env.REPOSITORY }}/server:${{ env.RELEASE_TAG }}
-            ghcr.io/${{ env.REPOSITORY }}/client:latest
+            ghcr.io/${{ env.REPOSITORY }}/server:latest
 
       - name: Build and push client image
         id: client_push
