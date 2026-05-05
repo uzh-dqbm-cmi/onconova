@@ -12,6 +12,7 @@ from onconova.oncology.models.systemic_therapy import SystemicTherapyIntentChoic
 from onconova.oncology.models.therapy_line import TherapyLineIntentChoices
 from onconova.tests.factories import (
     ECOGPerformanceStatusFactory,
+    GenomicVariantFactory,
     PrimaryNeoplasticEntityFactory,
     RadiotherapyFactory,
     SystemicTherapyFactory,
@@ -388,3 +389,84 @@ class TestFunctionalAggregatedDataCount(TestCase):
         pqs = patient_cases_queryset_for_case_example(payload)
         full = interpolated_sql_for_case_example_filter(pqs).lower()
         self.assertIn("oncology_genomicvariant", full)
+
+    def test_genomic_variant_protein_hgvs_only_filters_cases(self):
+        """Functional-agg rows with only ``proteinHgvs`` must constrain EXISTS on ``protein_hgvs``."""
+        from onconova.oncology.similarity_count import (
+            interpolated_sql_for_case_example_filter,
+            patient_cases_queryset_for_case_example,
+        )
+
+        hgvs = "NP_003997.1:p.Trp24Cys"
+        gv_match = GenomicVariantFactory.create(protein_hgvs=hgvs)
+        GenomicVariantFactory.create(protein_hgvs="NP_003997.1:p.Trp24Ter")
+
+        payload = {"caseExample": {"genomicVariants": [{"proteinHgvs": hgvs}]}}
+        pqs = patient_cases_queryset_for_case_example(payload)
+        ids = set(pqs.values_list("pk", flat=True))
+        self.assertEqual(ids, {gv_match.case_id})
+
+        full = interpolated_sql_for_case_example_filter(pqs).lower()
+        self.assertIn("oncology_genomicvariant", full)
+        self.assertIn("protein_hgvs", full)
+
+        n = pqs.count()
+        self.assertEqual(n, 1)
+
+    def test_genomic_variant_genes_array_filters_cases(self):
+        import onconova.terminology.models as terminology
+        from onconova.oncology.similarity_count import (
+            interpolated_sql_for_case_example_filter,
+            patient_cases_queryset_for_case_example,
+        )
+
+        sys_uri = "http://test.example/terminology/sim-count-gene"
+        g1, _ = terminology.Gene.objects.get_or_create(
+            code="SIM-GENE-A",
+            system=sys_uri,
+            defaults={"display": "Sim gene A"},
+        )
+        g2, _ = terminology.Gene.objects.get_or_create(
+            code="SIM-GENE-B",
+            system=sys_uri,
+            defaults={"display": "Sim gene B"},
+        )
+        gv_match = GenomicVariantFactory.create()
+        gv_match.genes.set([g1])
+        gv_other = GenomicVariantFactory.create()
+        gv_other.genes.set([g2])
+
+        payload = {
+            "caseExample": {
+                "genomicVariants": [{"genes": [{"code": g1.code}]}],
+            }
+        }
+        pqs = patient_cases_queryset_for_case_example(payload)
+        ids = set(pqs.values_list("pk", flat=True))
+        self.assertEqual(ids, {gv_match.case_id})
+
+        full = interpolated_sql_for_case_example_filter(pqs).lower()
+        self.assertIn("oncology_genomicvariant", full)
+
+        self.assertEqual(pqs.count(), 1)
+
+    def test_genomic_variant_dna_hgvs_filters_cases(self):
+        from onconova.oncology.similarity_count import (
+            interpolated_sql_for_case_example_filter,
+            patient_cases_queryset_for_case_example,
+        )
+
+        dna = "NM_000123.1:c.100A>G"
+        gv_match = GenomicVariantFactory.create(dna_hgvs=dna)
+        GenomicVariantFactory.create(dna_hgvs="NM_000123.1:c.200T>C")
+
+        payload = {"caseExample": {"genomicVariants": [{"dnaHgvs": dna}]}}
+        pqs = patient_cases_queryset_for_case_example(payload)
+        ids = set(pqs.values_list("pk", flat=True))
+        self.assertEqual(ids, {gv_match.case_id})
+
+        full = interpolated_sql_for_case_example_filter(pqs).lower()
+        self.assertIn("oncology_genomicvariant", full)
+        self.assertIn("dna_hgvs", full)
+
+        self.assertEqual(pqs.count(), 1)

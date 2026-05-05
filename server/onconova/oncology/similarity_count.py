@@ -4,7 +4,8 @@ Count PatientCase rows matching a case-example partial bundle (panel JSON from a
 The payload shape matches the aitb-dashboard ``caseExample`` object:
 camelCase panel keys (e.g. ``neoplasticEntities``) mapping to lists of row dicts
 built from Onconova export slices (coded concepts as ``{ "code": "..." }`` where
-applicable; therapy lines use ``label`` / ``intent`` / ``ordinal``; systemic
+applicable; genomic variants may include ``proteinHgvs`` as a plain HGVS string;
+therapy lines use ``label`` / ``intent`` / ``ordinal``; systemic
 therapies use only ``medications[].drug`` codes; radiotherapies include intent,
 sessions, line id, and nested dosage / setting codes as emitted by aitb-dashboard).
 
@@ -81,11 +82,17 @@ def _iter_parent_linked_children(
         if not issubclass(cls, parent):
             continue
         for f in cls._meta.local_fields:
-            if not getattr(f, "parent_link", False):
+            remote = getattr(f, "remote_field", None)
+            if remote is None:
                 continue
-            if getattr(f.remote_field, "model", None) is not parent:
+            # Django 5 stores ``parent_link`` on ``remote_field`` (not the forward field).
+            if not getattr(remote, "parent_link", False) and not getattr(
+                f, "parent_link", False
+            ):
                 continue
-            rel = f.remote_field.related_name
+            if getattr(remote, "model", None) is not parent:
+                continue
+            rel = remote.related_name
             if rel:
                 yield rel, cls
             break
@@ -240,6 +247,25 @@ def _gene_panel_string_value(val: Any) -> str | None:
     return None
 
 
+def _protein_hgvs_string_value(val: Any) -> str | None:
+    """Resolve protein HGVS from export JSON (CharField on GenomicVariant, not a CodedConcept FK)."""
+    if val is None:
+        return None
+    c = _coded_code(val)
+    if c:
+        return c
+    if isinstance(val, str):
+        s = val.strip()
+        return s or None
+    if isinstance(val, dict):
+        d = val.get("display")
+        if d is not None:
+            s = str(d).strip()
+            if s:
+                return s
+    return None
+
+
 def _cytogenetic_location_filter_value(val: Any) -> str | None:
     """Cytogenetic location is a string in the API; bundles may send {code} only."""
     if val is None:
@@ -318,17 +344,31 @@ def _genomic_variant_row_q(row: dict[str, Any]) -> Q | None:
     Build an EXISTS filter for GenomicVariant rows.
 
     ``_flat_model_row_q`` only considers CodedConcept FK/M2M columns. GenomicVariant also
-    stores ``gene_panel`` as a plain CharField, ``hgvsVersion`` is API-only (not a DB
-    filter), and ``cytogenetic_location`` is a queryable ``AnnotationProperty`` that must
-    be filtered by lookup on that property.
+    stores ``gene_panel``, ``dna_hgvs``, and ``protein_hgvs`` as plain CharFields,
+    ``hgvsVersion`` is API-only (not a DB filter), ``cytogenetic_location`` is a queryable
+    ``AnnotationProperty``, and ``genes`` is a CodedConcept M2M requiring chained filters.
     """
-    kwargs: dict[str, Any] = {}
+    inner = orm.GenomicVariant.objects.filter(case_id=OuterRef("pk"))
+    matched = False
     for json_key, val in row.items():
         snake = camel_to_snake(json_key)
         if snake == "gene_panel":
             gp = _gene_panel_string_value(val)
             if gp:
-                kwargs["gene_panel__iexact"] = gp
+                inner = inner.filter(gene_panel__iexact=gp)
+                matched = True
+            continue
+        if snake == "protein_hgvs":
+            ph = _protein_hgvs_string_value(val)
+            if ph:
+                inner = inner.filter(protein_hgvs__iexact=ph)
+                matched = True
+            continue
+        if snake == "dna_hgvs":
+            dh = _protein_hgvs_string_value(val)
+            if dh:
+                inner = inner.filter(dna_hgvs__iexact=dh)
+                matched = True
             continue
         if snake == "hgvs_version":
             # Serialized HGVS nomenclature version (schema default); not a persisted column.
@@ -336,16 +376,27 @@ def _genomic_variant_row_q(row: dict[str, Any]) -> Q | None:
         if snake == "cytogenetic_location":
             loc = _cytogenetic_location_filter_value(val)
             if loc:
-                kwargs["cytogenetic_location__icontains"] = loc
+                inner = inner.filter(cytogenetic_location__icontains=loc)
+                matched = True
+            continue
+        if snake == "genes" and isinstance(val, list):
+            for item in val:
+                if not isinstance(item, dict):
+                    continue
+                code = _coded_code(item)
+                if code:
+                    inner = inner.filter(genes__code=code)
+                    matched = True
             continue
         code = _coded_code(val)
         if not code:
             continue
         if _is_coded_concept_relation_field(orm.GenomicVariant, snake):
-            kwargs[f"{snake}__code"] = code
-    if not kwargs:
+            inner = inner.filter(**{f"{snake}__code": code})
+            matched = True
+    if not matched:
         return None
-    return Q(Exists(orm.GenomicVariant.objects.filter(case_id=OuterRef("pk"), **kwargs)))
+    return Q(Exists(inner))
 
 
 def _therapy_line_intent_value(val: Any) -> str | None:
