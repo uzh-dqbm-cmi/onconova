@@ -27,6 +27,7 @@ from onconova.oncology.similarity_count import (
     parse_case_example_query_param,
     patient_cases_queryset_for_case_example,
 )
+from onconova.oncology.similarity_explorer import run_similarity_explorer
 
 
 class PatientCaseIdentifier(str, Enum):
@@ -143,6 +144,46 @@ class PatientCaseController(ControllerBase):
         return scm.SimilarityCountResult(
             patientCaseCount=n,
             patientCountSql=sql,
+        )
+
+    @route.post(
+        path="/similarity-explorer",
+        response={200: scm.SimilarityExplorerResult, **COMMON_HTTP_ERRORS},
+        permissions=[perms.CanViewCases],
+        operation_id="similarityExplorer",
+    )
+    def similarity_explorer(
+        self,
+        body: scm.SimilarityExplorerRequest,
+    ):
+        raw = body.caseExample
+        if isinstance(raw, str):
+            if not raw.strip():
+                raise HttpError(
+                    400,
+                    "caseExample must be a non-empty JSON string when sent as a string.",
+                )
+            try:
+                parse_case_example_query_param(raw.strip())
+            except ValueError as e:
+                raise HttpError(400, str(e)) from e
+        try:
+            data = run_similarity_explorer(
+                raw,
+                [opt.model_dump() for opt in body.caseSelectorOptions],
+            )
+        except ValueError as e:
+            raise HttpError(400, str(e)) from e
+        return scm.SimilarityExplorerResult(
+            patientCaseCount=data["patientCaseCount"],
+            patientCountSql=data["patientCountSql"],
+            caseSelectorOptions=[
+                scm.SimilarityExplorerOptionResult(
+                    path=o["path"],
+                    patientCaseCountIncrease=o["patientCaseCountIncrease"],
+                )
+                for o in data["caseSelectorOptions"]
+            ],
         )
 
     @route.post(

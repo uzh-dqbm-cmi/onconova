@@ -252,3 +252,67 @@ class SimilarityCountResult(Schema):
             "COUNT for the actual count query."
         ),
     )
+
+
+class CaseSelectorOption(Schema):
+    id: int = Field(
+        ...,
+        title="Option id",
+        description="Index of this option in the request ``caseSelectorOptions`` list (0-based).",
+    )
+    path: str = Field(
+        ...,
+        title="UI path",
+        description="Slash-separated path locating this selector option in the dashboard UI.",
+    )
+    properties: list[str] = Field(
+        default_factory=list,
+        title="Case example property paths",
+        description=(
+            "Leaf-oriented JSON paths into ``caseExample`` (e.g. "
+            "``neoplasticEntities[0].morphology.code``) to remove when computing this option's delta."
+        ),
+    )
+
+
+class SimilarityExplorerRequest(Schema):
+    caseExample: dict[str, Any] | str = Field(
+        ...,
+        title="Case example",
+        description="Same shape as ``SimilarityCountRequest.caseExample``.",
+    )
+    caseSelectorOptions: list[CaseSelectorOption] = Field(
+        default_factory=list,
+        title="Case selector options",
+        description="Per–UI-row metadata and property paths for marginal count deltas.",
+    )
+
+
+class SimilarityExplorerOptionResult(Schema):
+    path: str = Field(..., title="UI path", description="Echo of the request option path.")
+    patientCaseCountIncrease: int = Field(
+        ...,
+        title="Patient case count increase",
+        description=(
+            "``patientCaseCount`` from similarity-count on the reduced example "
+            "minus the baseline root count."
+        ),
+    )
+
+
+class SimilarityExplorerResult(Schema):
+    patientCaseCount: int = Field(
+        ...,
+        title="Patient case count",
+        description="Baseline count for the full ``caseExample`` (same as similarity-count).",
+    )
+    patientCountSql: Nullable[str] = Field(
+        default=None,
+        title="Patient count filter SQL",
+        description="Interpolated SQL for the baseline queryset (diagnostic).",
+    )
+    caseSelectorOptions: list[SimilarityExplorerOptionResult] = Field(
+        default_factory=list,
+        title="Per-option deltas",
+        description="Marginal patient count increase when each option's properties are removed.",
+    )
