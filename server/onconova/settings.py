@@ -3,7 +3,6 @@ Django settings module for the Onconova server application.
 
 This module configures environment variables, security, authentication, database, logging, and other core settings for the Onconova Django project.
 """
-import logging
 import os
 import socket
 import tomllib  # type: ignore
@@ -33,12 +32,6 @@ if BASE_DIR.joinpath("pyproject.toml").exists():
     """
 else:
     VERSION = "unknown"
-
-# Global server log level from env ``LOG_LEVEL`` (default INFO). Applied to all Django ``LOGGING``
-# handlers, named loggers, and ``root`` (see LOGGING block below).
-ONCONOVA_LOGGING_LEVEL = os.getenv("LOG_LEVEL", "INFO").strip().upper()
-if ONCONOVA_LOGGING_LEVEL not in logging.getLevelNamesMapping():
-    ONCONOVA_LOGGING_LEVEL = "INFO"
 
 DEBUG = os.getenv("ENVIRONMENT") == "development"
 """
@@ -459,8 +452,7 @@ USE_TZ = False  # Do not make datetimes timezone-aware by default
 # Ensure logs directory exists
 try:
     mkdir_p("/app/logs")
-except (PermissionError, OSError):
-    pass
+except PermissionError: pass
 # Logger settings
 LOGGING = {
     "version": 1,
@@ -485,7 +477,7 @@ LOGGING = {
     },
     "handlers": {
         "audit_file": {
-            "level": ONCONOVA_LOGGING_LEVEL,
+            "level": "INFO",
             "class": "logging.handlers.TimedRotatingFileHandler",
             "when": "midnight",
             "filename": "/app/logs/logfile.log",
@@ -493,17 +485,17 @@ LOGGING = {
             "backupCount": 31,
         },
         "audit_console": {
-            "level": ONCONOVA_LOGGING_LEVEL,
+            "level": "INFO",
             "class": "logging.StreamHandler",
             "formatter": "audit_logfmt",
         },
         "error_console": {
-            "level": ONCONOVA_LOGGING_LEVEL,
+            "level": "ERROR",
             "class": "logging.StreamHandler",
             "formatter": "error_verbose",
         },
         "error_file": {
-            "level": ONCONOVA_LOGGING_LEVEL,
+            "level": "ERROR",
             "class": "logging.handlers.TimedRotatingFileHandler",
             "when": "midnight",
             "filename": "/app/logs/error.log",
@@ -511,25 +503,15 @@ LOGGING = {
             "backupCount": 31,
         },
     },
-    "root": {
-        "handlers": ["error_console"],
-        "level": ONCONOVA_LOGGING_LEVEL,
-    },
     "loggers": {
         "audit": {
             "handlers": ["audit_file", "audit_console"],
-            "level": ONCONOVA_LOGGING_LEVEL,
+            "level": "INFO",
             "propagate": False,
         },
         "error": {
             "handlers": ["error_file", "error_console"],
-            "level": ONCONOVA_LOGGING_LEVEL,
-            "propagate": False,
-        },
-        # SQL trace for patient-cases/match-count (see match_count.py)
-        "onconova.oncology.match_count": {
-            "handlers": ["error_console"],
-            "level": ONCONOVA_LOGGING_LEVEL,
+            "level": "ERROR",
             "propagate": False,
         },
     },

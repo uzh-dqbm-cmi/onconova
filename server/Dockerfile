@@ -45,8 +45,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Setup work directory
 WORKDIR /app/src
-# Avoid $PYTHONPATH here (often unset in base image; BuildKit warns UndefinedVar).
-ENV PYTHONPATH=/app/src
+ENV PYTHONPATH="/app/src:$PYTHONPATH"
 
 ################################
 # BUILDER-BASE

@@ -22,23 +22,17 @@ LOGGING = {
     "disable_existing_loggers": False,
     "handlers": {
         "console": {
-            "level": ONCONOVA_LOGGING_LEVEL,
             "class": "logging.StreamHandler",
         },
     },
     "root": {
         "handlers": ["console"],
-        "level": ONCONOVA_LOGGING_LEVEL,
+        "level": "WARNING",
     },
     "loggers": {
         "django": {
             "handlers": ["console"],
-            "level": ONCONOVA_LOGGING_LEVEL,
-            "propagate": False,
-        },
-        "onconova.oncology.match_count": {
-            "handlers": ["console"],
-            "level": ONCONOVA_LOGGING_LEVEL,
+            "level": "INFO",
             "propagate": False,
         },
     },

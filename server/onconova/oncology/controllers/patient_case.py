@@ -5,7 +5,6 @@ from django.conf import settings
 from django.db.models import Exists, OuterRef, Q
 from django.shortcuts import get_object_or_404
 from ninja import Field, Query
-from ninja.errors import HttpError
 from ninja_extra import ControllerBase, api_controller, route
 from ninja_extra.ordering import ordering
 from ninja_extra.pagination import paginate
@@ -22,12 +21,6 @@ from onconova.oncology import (
     models as orm,
     schemas as scm,
 )
-from onconova.oncology.match_count import (
-    interpolated_sql_for_case_example_filter,
-    parse_case_example_query_param,
-    patient_cases_queryset_for_case_example,
-)
-from onconova.oncology.match_explorer import run_match_explorer
 
 
 class PatientCaseIdentifier(str, Enum):
@@ -81,90 +74,6 @@ class PatientCaseFilters(scm.PatientCaseFilters):
     tags=["Patient Cases"],
 )
 class PatientCaseController(ControllerBase):
-    # Declare match-* routes before ``GET /{caseId}`` so literal paths are not treated as
-    # case identifiers.
-
-    def _match_count_impl(self, body: scm.MatchCountRequest) -> scm.MatchCountResult:
-        raw = body.caseExample
-        if isinstance(raw, str):
-            if not raw.strip():
-                raise HttpError(
-                    400,
-                    "caseExample must be a non-empty JSON string when sent as a string.",
-                )
-            try:
-                payload = parse_case_example_query_param(raw.strip())
-            except ValueError as e:
-                raise HttpError(400, str(e)) from e
-        else:
-            payload = raw
-        try:
-            qs = patient_cases_queryset_for_case_example(payload)
-            sql = interpolated_sql_for_case_example_filter(qs)
-            n = qs.count()
-        except ValueError as e:
-            raise HttpError(400, str(e)) from e
-        return scm.MatchCountResult(
-            patientCaseCount=n,
-            patientCountSql=sql,
-        )
-
-    @route.post(
-        path="/match-count",
-        response={200: scm.MatchCountResult, **COMMON_HTTP_ERRORS},
-        permissions=[perms.CanViewCases],
-        operation_id="matchCount",
-    )
-    def match_count(
-        self,
-        body: scm.MatchCountRequest,
-    ):
-        return self._match_count_impl(body)
-
-    def _match_explorer_impl(
-        self, body: scm.MatchExplorerRequest
-    ) -> scm.MatchExplorerResult:
-        raw = body.caseExample
-        if isinstance(raw, str):
-            if not raw.strip():
-                raise HttpError(
-                    400,
-                    "caseExample must be a non-empty JSON string when sent as a string.",
-                )
-            try:
-                parse_case_example_query_param(raw.strip())
-            except ValueError as e:
-                raise HttpError(400, str(e)) from e
-        try:
-            data = run_match_explorer(
-                raw,
-                [opt.model_dump() for opt in body.caseSelectorOptions],
-            )
-        except ValueError as e:
-            raise HttpError(400, str(e)) from e
-        return scm.MatchExplorerResult(
-            patientCaseCount=data["patientCaseCount"],
-            patientCountSql=data["patientCountSql"],
-            caseSelectorOptions=[
-                scm.MatchExplorerOptionResult(
-                    path=o["path"],
-                    patientCaseCountIncrease=o["patientCaseCountIncrease"],
-                )
-                for o in data["caseSelectorOptions"]
-            ],
-        )
-
-    @route.post(
-        path="/match-explorer",
-        response={200: scm.MatchExplorerResult, **COMMON_HTTP_ERRORS},
-        permissions=[perms.CanViewCases],
-        operation_id="matchExplorer",
-    )
-    def match_explorer(
-        self,
-        body: scm.MatchExplorerRequest,
-    ):
-        return self._match_explorer_impl(body)
 
     @route.get(
         path="",

@@ -34,15 +34,9 @@ from .genomic_variant import GenomicVariantCreate, GenomicVariant
 from .lifestyle import LifestyleCreate, Lifestyle
 from .neoplastic_entity import NeoplasticEntityCreate, NeoplasticEntity
 from .patient_case import (
-    CaseSelectorOption,
     PatientCaseCreate,
     PatientCaseDataCompletionStatus,
     PatientCase,
-    MatchCountRequest,
-    MatchCountResult,
-    MatchExplorerOptionResult,
-    MatchExplorerRequest,
-    MatchExplorerResult,
 )
 from .performance_status import PerformanceStatusCreate, PerformanceStatus
 from .radiotherapy import (
@@ -165,12 +159,6 @@ ONCOLOGY_SCHEMAS = (
     PatientCase,
     PatientCaseCreate,
     PatientCaseDataCompletionStatus,
-    MatchCountRequest,
-    MatchCountResult,
-    CaseSelectorOption,
-    MatchExplorerRequest,
-    MatchExplorerResult,
-    MatchExplorerOptionResult,
     # Neoplastic entity schemas
     NeoplasticEntity,
     NeoplasticEntityCreate,
