@@ -36,7 +36,8 @@ LOGGING = {
             "level": ONCONOVA_LOGGING_LEVEL,
             "propagate": False,
         },
-        "onconova.oncology.match_count": {
+        # Parameterized ORM SQL query template and bound parameter count for POST /matching/count when LOG_LEVEL=DEBUG
+        "onconova.analytics.matching": {
             "handlers": ["console"],
             "level": ONCONOVA_LOGGING_LEVEL,
             "propagate": False,

@@ -1,7 +1,7 @@
 """
-This module provides API endpoints for dashboard analytics in the Onconova platform.
+This module provides API endpoints for dashboard analytics and case matching in the Onconova platform.
 It exposes statistics and metrics related to patient cases, primary sites, data completion,
-and temporal trends for use in dashboard visualizations.
+temporal trends, and partial-bundle case matching counts.
 """
 
 from collections import Counter
@@ -18,16 +18,20 @@ from django.db.models import (
     Window,
 )
 from django.db.models.functions import Cast, TruncMonth
+from ninja.errors import HttpError
 from ninja_extra import ControllerBase, api_controller, route
 
+from onconova.analytics.matching import count_matching_patient_cases
 from onconova.analytics.schemas import (
     CountsPerMonth,
     DataCompletionStatistics,
     DataPlatformStatistics,
     EntityStatistics,
     IncompleteCategory,
+    MatchingCountRequest,
 )
 from onconova.core.aggregates import Median
+from onconova.core.auth import permissions as perms
 from onconova.core.auth.token import XSessionTokenAuth
 from onconova.core.utils import COMMON_HTTP_ERRORS
 from onconova.oncology import models as oncological_models
@@ -251,3 +255,28 @@ class DashboardController(ControllerBase):
             mostIncompleteCategories=top_most_incomplete,
             completionOverTime=completion_over_time,
         )
+
+
+@api_controller("/matching", auth=[XSessionTokenAuth()], tags=["Matching"])
+class MatchingController(ControllerBase):
+    """
+    MatchingController provides API endpoints for matching patient cases against clinical
+    and genomic criteria expressed as partial patient case bundles.
+    """
+
+    @route.post(
+        path="/count",
+        response={200: int, 422: None, **COMMON_HTTP_ERRORS},
+        permissions=[perms.CanViewCases],
+        operation_id="matchingCount",
+    )
+    def count_matching_cases(self, payload: MatchingCountRequest) -> int:
+        """
+        Counts the number of patient cases matching all criteria specified in the provided
+        partial patient case bundle. Each non-empty resource entry adds an independent
+        inclusion requirement (logical AND); unmapped or unsatisfiable criteria return HTTP 422.
+        """
+        try:
+            return count_matching_patient_cases(payload.bundle)
+        except ValueError as exc:
+            raise HttpError(422, str(exc)) from exc

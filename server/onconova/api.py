@@ -8,7 +8,7 @@ from django.db import IntegrityError
 from ninja import Redoc
 from ninja_extra import NinjaExtraAPI
 
-from onconova.analytics.controllers import DashboardController
+from onconova.analytics.controllers import DashboardController, MatchingController
 from onconova.core.auth.controllers import AuthController, UsersController
 from onconova.core.healthcheck import HealthCheckController
 from onconova.core.measures.controllers import MeasuresController
@@ -140,6 +140,7 @@ api.register_controllers(
     MeasuresController,
     TerminologyController,
     CohortsController,
+    MatchingController,
     CohortAnalysisController,
     DashboardController,
     DatasetsController,

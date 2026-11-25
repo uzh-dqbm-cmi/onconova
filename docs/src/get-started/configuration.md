@@ -61,6 +61,7 @@ The following variables control the different configurable aspects of the Oncono
 | `ONCONOVA_MICROSOFT_CLIENT_ID` *(optional)*          | Microsoft OIDC client ID for Single Sign-On (SSO). |
 | `ONCONOVA_MICROSOFT_TENANT_ID` *(optional)*          | Microsoft OIDC tenant ID for Single Sign-On (SSO). |
 | `ONCONOVA_MICROSOFT_SECRET` *(optional)*             | Microsoft OIDC secret key for Single Sign-On (SSO). |
+| `LOG_LEVEL` *(optional)*                             | Global log level for the Onconova server (`NOTSET`, `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`). Defaults to `INFO`. At `DEBUG`, matching requests log parameterized SQL query templates with bound parameter counts. |
 | `ONCONOVA_POSTGRES_DATABASE`                             | Name of the PostgreSQL database used by Onconova. |
 | `ONCONOVA_POSTGRES_USER`                                 | Username for the PostgreSQL database user. |
 | `ONCONOVA_POSTGRES_PASSWORD`                             | Password for the PostgreSQL database user. |

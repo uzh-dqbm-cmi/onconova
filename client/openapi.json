@@ -3,7 +3,7 @@
   "info": {
     "title": "Onconova API",
     "version": "1.4.0",
-    "description": "\nWelcome to the Onconova API — a secure, standards-based interface designed to facilitate the exchange, management, and \nanalysis of research data related to cancer genomics, clinical records, and associated metadata. This API provides an extensive set of RESTful endpoints enabling authorized users to perform full CRUD (Create, Read, Update, Delete) operations on various resources within the platform’s data ecosystem.\n\nThe primary objective of this API is to support precision oncology research by enabling interoperability between data systems, promoting data sharing among research institutions, and streamlining workflows for clinical and genomic data management in a secure, authenticated environment.\n\n### Authentication\nTo ensure the security and integrity of cancer research data, **all API requests require proper authentication**.\n\nA valid session token must be obtained prior to accessing any protected endpoint. This token must be included in the request header `X-Session-Token`.\n\nThe authentication and authorization flows for obtaining and managing session tokens are provided through the AllAuth authentication service. \nThis includes endpoints for user login, logout, password management, and token renewal. For complete details on implementing authentication and \nmanaging session tokens, please refer to the [AllAuth API documentation](https://docs.allauth.org/en/latest/headless/openapi-specification/).\n\n**Important:** Unauthorized requests or those missing valid authentication tokens will receive an `HTTP 401 Unauthorized` response.\n\n### Terminologies \nMany resources take objects of the type `CodedConcept` to represent concepts from coded terminologies. Each property of the type `CodedConcept` in a schema will have an associated `x-terminology` attribute. The full list of `CodedConcept` objects allowed for specific resource properties can be retrieved through the [terminology endpoint](#tag/Terminology/operation/getTerminologyConcepts) by passing the `x-terminology` value as the `terminologyName` parameter. \n\n### Terms and Conditions\nBy accessing and using this website, you agree to comply with and be bound by the following terms and conditions. The content provided on this API is \nintended solely for general informational and research purposes. While we strive to ensure the information is accurate and reliable, we do not make \nany express or implied warranties about the accuracy, adequacy, validity, reliability, availability, or completeness of the content.\n\nThe information presented on this platform is provided in good faith. However, we do not accept any liability for any loss or damage incurred as a \nresult of using the site or relying on the information provided. Your use of this site and any reliance on the content is solely at your own risk.\n\nThese terms and conditions may be updated from time to time, and it is your responsibility to review them regularly to ensure compliance.\n\n### License \nThe Onconova API specification is made available under the MIT License, a permissive open-source license that allows users to freely use, copy,\nmodify, merge, publish, distribute, sublicense, and/or sell copies of the software, subject to the inclusion of the original copyright and license.\n    ",
+    "description": "\nWelcome to the Onconova API \u2014 a secure, standards-based interface designed to facilitate the exchange, management, and \nanalysis of research data related to cancer genomics, clinical records, and associated metadata. This API provides an extensive set of RESTful endpoints enabling authorized users to perform full CRUD (Create, Read, Update, Delete) operations on various resources within the platform\u2019s data ecosystem.\n\nThe primary objective of this API is to support precision oncology research by enabling interoperability between data systems, promoting data sharing among research institutions, and streamlining workflows for clinical and genomic data management in a secure, authenticated environment.\n\n### Authentication\nTo ensure the security and integrity of cancer research data, **all API requests require proper authentication**.\n\nA valid session token must be obtained prior to accessing any protected endpoint. This token must be included in the request header `X-Session-Token`.\n\nThe authentication and authorization flows for obtaining and managing session tokens are provided through the AllAuth authentication service. \nThis includes endpoints for user login, logout, password management, and token renewal. For complete details on implementing authentication and \nmanaging session tokens, please refer to the [AllAuth API documentation](https://docs.allauth.org/en/latest/headless/openapi-specification/).\n\n**Important:** Unauthorized requests or those missing valid authentication tokens will receive an `HTTP 401 Unauthorized` response.\n\n### Terminologies \nMany resources take objects of the type `CodedConcept` to represent concepts from coded terminologies. Each property of the type `CodedConcept` in a schema will have an associated `x-terminology` attribute. The full list of `CodedConcept` objects allowed for specific resource properties can be retrieved through the [terminology endpoint](#tag/Terminology/operation/getTerminologyConcepts) by passing the `x-terminology` value as the `terminologyName` parameter. \n\n### Terms and Conditions\nBy accessing and using this website, you agree to comply with and be bound by the following terms and conditions. The content provided on this API is \nintended solely for general informational and research purposes. While we strive to ensure the information is accurate and reliable, we do not make \nany express or implied warranties about the accuracy, adequacy, validity, reliability, availability, or completeness of the content.\n\nThe information presented on this platform is provided in good faith. However, we do not accept any liability for any loss or damage incurred as a \nresult of using the site or relying on the information provided. Your use of this site and any reliance on the content is solely at your own risk.\n\nThese terms and conditions may be updated from time to time, and it is your responsibility to review them regularly to ensure compliance.\n\n### License \nThe Onconova API specification is made available under the MIT License, a permissive open-source license that allows users to freely use, copy,\nmodify, merge, publish, distribute, sublicense, and/or sell copies of the software, subject to the inclusion of the original copyright and license.\n    ",
     "license": {
       "name": "MIT",
       "url": "https://github.com/onconova/onconova/blob/main/LICENSE"
@@ -55560,6 +55560,57 @@
         ]
       }
     },
+    "/api/v1/matching/count": {
+      "post": {
+        "operationId": "matchingCount",
+        "summary": "Count Matching Cases",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "title": "Response",
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "description": "Counts the number of patient cases matching all criteria specified in the provided\npartial patient case bundle. Each non-empty resource entry adds an independent\ninclusion requirement (logical AND); unmapped or unsatisfiable criteria return HTTP 422.",
+        "tags": [
+          "Matching"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MatchingCountRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "XSessionTokenAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/cohorts/{cohortId}/analysis/distribution": {
       "get": {
         "operationId": "getCohortPropertyDistribution",
@@ -97097,6 +97148,2550 @@
           "consentStatus"
         ],
         "title": "CohortTraits",
+        "type": "object"
+      },
+      "MatchingCountRequest": {
+        "additionalProperties": false,
+        "description": "Request payload for counting patient cases matching a partial patient case bundle.\n\nAttributes:\n    bundle (PartialPatientCaseBundle): Partial patient case bundle defining the matching criteria.",
+        "properties": {
+          "bundle": {
+            "$ref": "#/components/schemas/PartialPatientCaseBundle",
+            "description": "Partial patient case bundle specifying the criteria that matching patient cases must satisfy.",
+            "title": "Patient case bundle"
+          }
+        },
+        "required": [
+          "bundle"
+        ],
+        "title": "MatchingCountRequest",
+        "type": "object"
+      },
+      "PartialAdverseEvent": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `AdverseEvent`.",
+        "properties": {
+          "event": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Classification of the adverse event using CTCAE criteria",
+            "title": "Adverse event",
+            "x-terminology": "AdverseEventTerm"
+          },
+          "grade": {
+            "description": "The grade associated with the severity of an adverse event, using CTCAE criteria.",
+            "title": "Grade",
+            "type": "integer"
+          },
+          "outcome": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdverseEventOutcomeChoices"
+              }
+            ],
+            "description": "The date when the adverse event ended or returned to baseline.",
+            "title": "Date resolved"
+          },
+          "suspectedCauses": {
+            "description": "Suspected causes of the adverse event",
+            "items": {
+              "$ref": "#/components/schemas/PartialAdverseEventSuspectedCause"
+            },
+            "title": "Suspected causes",
+            "type": "array"
+          },
+          "mitigations": {
+            "description": "Mitigations of the adverse event",
+            "items": {
+              "$ref": "#/components/schemas/PartialAdverseEventMitigation"
+            },
+            "title": "Mitigations",
+            "type": "array"
+          }
+        },
+        "title": "PartialAdverseEvent",
+        "type": "object"
+      },
+      "PartialAdverseEventMitigation": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `AdverseEventMitigation`.",
+        "properties": {
+          "category": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdverseEventMitigationCategoryChoices"
+              }
+            ],
+            "description": "Type of mitigation employed",
+            "title": "Mitigation category"
+          },
+          "adjustment": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Classification of the adjustment of systemic anti-cancer treatment used to mitigate the adverse event (if applicable)",
+            "title": "Treatment Adjustment",
+            "x-terminology": "AdverseEventMitigationTreatmentAdjustment"
+          },
+          "drug": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Classification of the pharmacological treatment used to mitigate the adverse event (if applicable)",
+            "title": "Pharmacological drug",
+            "x-terminology": "AdverseEventMitigationDrug"
+          },
+          "procedure": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Classification of the non-pharmacological procedure used to mitigate the adverse event (if applicable)",
+            "title": "Procedure",
+            "x-terminology": "AdverseEventMitigationProcedure"
+          },
+          "management": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Management type of the adverse event mitigation",
+            "title": "Management",
+            "x-terminology": "AdverseEventMitigationManagement"
+          }
+        },
+        "title": "PartialAdverseEventMitigation",
+        "type": "object"
+      },
+      "PartialAdverseEventSuspectedCause": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `AdverseEventSuspectedCause`.",
+        "properties": {
+          "causality": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdverseEventSuspectedCauseCausalityChoices"
+              }
+            ],
+            "description": "Assessment of the potential causality",
+            "title": "Causality"
+          }
+        },
+        "title": "PartialAdverseEventSuspectedCause",
+        "type": "object"
+      },
+      "PartialAneuploidScore": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `AneuploidScore`.",
+        "properties": {
+          "category": {
+            "const": "aneuploid_score",
+            "description": "Genomic signature discriminator category",
+            "title": "Category",
+            "type": "string"
+          },
+          "value": {
+            "description": "The actual aneuploid score (AS) value in total altered arms",
+            "title": "Value",
+            "type": "integer"
+          }
+        },
+        "title": "PartialAneuploidScore",
+        "type": "object"
+      },
+      "PartialBinetStaging": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `BinetStaging`.",
+        "properties": {
+          "stagingDomain": {
+            "const": "binet",
+            "description": "Staging domain discriminator category",
+            "title": "Staging domain",
+            "type": "string"
+          },
+          "stage": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "The value of the Binet stage",
+            "title": "Binet Stage",
+            "x-terminology": "BinetStage"
+          }
+        },
+        "title": "PartialBinetStaging",
+        "type": "object"
+      },
+      "PartialBreslowDepth": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `BreslowDepth`.",
+        "properties": {
+          "stagingDomain": {
+            "const": "breslow",
+            "description": "Staging domain discriminator category",
+            "title": "Staging domain",
+            "type": "string"
+          },
+          "depth": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Measure"
+              }
+            ],
+            "description": "Breslow depth",
+            "title": "Breslow depth",
+            "x-default-unit": "mm",
+            "x-measure": "Distance"
+          },
+          "isUlcered": {
+            "description": "Whether the primary tumour presents ulceration",
+            "title": "Ulcered",
+            "type": "boolean"
+          },
+          "stage": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "The value of the Breslow stage",
+            "title": "Breslow Stage",
+            "x-terminology": "BreslowDepthStage"
+          }
+        },
+        "title": "PartialBreslowDepth",
+        "type": "object"
+      },
+      "PartialClarkStaging": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `ClarkStaging`.",
+        "properties": {
+          "stagingDomain": {
+            "const": "clark",
+            "description": "Staging domain discriminator category",
+            "title": "Staging domain",
+            "type": "string"
+          },
+          "stage": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "The value of the Clark level stage",
+            "title": "Clark Level Stage",
+            "x-terminology": "ClarkLevel"
+          }
+        },
+        "title": "PartialClarkStaging",
+        "type": "object"
+      },
+      "PartialCodedConcept": {
+        "additionalProperties": false,
+        "description": "Partial representation of a coded concept for matching queries.\n\nOnly `code` is required; `system` and descriptive fields are optional so\ncallers may match by code alone or pass a full exported `CodedConcept`.\n\nAttributes:\n    code (str): Unique code within a coding system that identifies a concept.\n    system (Nullable[str]): Optional canonical URL of the code system.\n    display (Nullable[str]): Optional human-readable description of the concept.\n    version (Nullable[str]): Optional release version of the code system.\n    synonyms (Nullable[List[str]]): Optional list of synonyms.\n    properties (Nullable[Dict[str, Any]]): Optional additional concept properties.",
+        "properties": {
+          "code": {
+            "description": "Unique code within a coding system that identifies a concept.",
+            "title": "Code",
+            "type": "string"
+          },
+          "system": {
+            "description": "Canonical URL of the code system defining the concept.",
+            "title": "System",
+            "type": "string"
+          },
+          "display": {
+            "description": "Human-readable description of the concept.",
+            "title": "Display",
+            "type": "string"
+          },
+          "version": {
+            "description": "Release version of the code system, if applicable.",
+            "title": "Version",
+            "type": "string"
+          },
+          "synonyms": {
+            "description": "List of synonyms or alternative representations of the concept.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Synonyms",
+            "type": "array"
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": true,
+            "title": "Properties",
+            "description": "Additional properties associated with the concept."
+          }
+        },
+        "required": [
+          "code"
+        ],
+        "title": "PartialCodedConcept",
+        "type": "object"
+      },
+      "PartialComorbiditiesAssessment": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `ComorbiditiesAssessment`.",
+        "properties": {
+          "panel": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ComorbiditiesAssessmentPanelChoices"
+              }
+            ],
+            "description": "Comorbidities panel",
+            "title": "Panel"
+          },
+          "presentConditions": {
+            "description": "Present comorbid conditions",
+            "items": {
+              "$ref": "#/components/schemas/PartialCodedConcept"
+            },
+            "title": "Present comorbid conditions",
+            "type": "array",
+            "x-terminology": "ICD10Condition"
+          },
+          "absentConditions": {
+            "description": "Absent comorbid conditions",
+            "items": {
+              "$ref": "#/components/schemas/PartialCodedConcept"
+            },
+            "title": "Absent comorbid conditions",
+            "type": "array",
+            "x-terminology": "ICD10Condition"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "description": "Comorbidity score",
+            "title": "Score"
+          }
+        },
+        "title": "PartialComorbiditiesAssessment",
+        "type": "object"
+      },
+      "PartialFIGOStaging": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `FIGOStaging`.",
+        "properties": {
+          "stagingDomain": {
+            "const": "figo",
+            "description": "Staging domain discriminator category",
+            "title": "Staging domain",
+            "type": "string"
+          },
+          "stage": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "The value of the FIGO stage",
+            "title": "FIGO Stage",
+            "x-terminology": "FIGOStage"
+          },
+          "methodology": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Methodology used for the FIGO staging",
+            "title": "FIGO staging methodology",
+            "x-terminology": "FIGOStagingMethod"
+          }
+        },
+        "title": "PartialFIGOStaging",
+        "type": "object"
+      },
+      "PartialFamilyHistory": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `FamilyHistory`.",
+        "properties": {
+          "relationship": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Relationship to the patient",
+            "title": "Relationship",
+            "x-terminology": "FamilyMemberType"
+          },
+          "hadCancer": {
+            "description": "Whether the family member has a history of cancer",
+            "title": "Had cancer",
+            "type": "boolean"
+          },
+          "isDeceased": {
+            "description": "Whether the the family member is deceased",
+            "title": "Is deceased",
+            "type": "boolean"
+          },
+          "contributedToDeath": {
+            "description": "Whether the cancer contributed to the cause of death of the family member",
+            "title": "Contributed to death",
+            "type": "boolean"
+          },
+          "onsetAge": {
+            "description": "Age at which the family member's cancer manifested",
+            "title": "Onset age",
+            "type": "integer"
+          },
+          "topography": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Estimated or actual topography of the family member's cancer",
+            "title": "Topography",
+            "x-terminology": "CancerTopography"
+          },
+          "morphology": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Morphology of the family member's cancer (if known)",
+            "title": "Morphology",
+            "x-terminology": "CancerMorphology"
+          }
+        },
+        "title": "PartialFamilyHistory",
+        "type": "object"
+      },
+      "PartialGenomicVariant": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `GenomicVariant`.",
+        "properties": {
+          "genes": {
+            "description": "Gene(s) affected by this variant",
+            "items": {
+              "$ref": "#/components/schemas/PartialCodedConcept"
+            },
+            "title": "Gene(s)",
+            "type": "array",
+            "x-terminology": "Gene"
+          },
+          "dnaHgvs": {
+            "description": "DNA HGVS expression (g-coordinate expression, HGVS version >=21.1)",
+            "pattern": "(?:(?:(?:(?:(?:(?:NC_|AC_|NG_|NT_|NW_|NZ_|GCF_)\\d+(?:\\.\\d{1,3})?)|(?:ENSG\\d+(?:\\.\\d{1,3})?)|(?:LRG_\\d+)):)?g)|(?:(?:(?:(?:(?:NC_|AC_|NG_|NT_|NW_|NZ_|GCF_)\\d+(?:\\.\\d{1,3})?)|(?:ENSG\\d+(?:\\.\\d{1,3})?)|(?:LRG_\\d+))?\\(?((?:(?:NM_|NR_|XM_|XR_)\\d+(?:\\.\\d{1,3})?)|(?:ENST\\d+(?:\\.\\d{1,3})?)|(?:LRG_\\d+t\\d{1,3}))\\)?:)?c))\\.((?:(?:(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))_(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))|(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))=|(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))(?:A|C|G|T|B|D|H|K|M|N|R|S|V|W|Y|X|-)+>(?:A|C|G|T|B|D|H|K|M|N|R|S|V|W|Y|X|-)+|(?:(?:(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))_(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))|(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))delins\\[(?:(?:(?:(?:NC_|AC_|NG_|NT_|NW_|NZ_|GCF_)\\d+(?:\\.\\d{1,3})?)|(?:ENSG\\d+(?:\\.\\d{1,3})?)|(?:LRG_\\d+)):)?g\\.(?:(?:(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))_(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))|(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))\\]|(?:(?:(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))_(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))|(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))ins\\[(?:(?:(?:(?:NC_|AC_|NG_|NT_|NW_|NZ_|GCF_)\\d+(?:\\.\\d{1,3})?)|(?:ENSG\\d+(?:\\.\\d{1,3})?)|(?:LRG_\\d+)):)?g\\.(?:(?:(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))_(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))|(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))\\]\\sand\\s(?:(?:(?:(?:NC_|AC_|NG_|NT_|NW_|NZ_|GCF_)\\d+(?:\\.\\d{1,3})?)|(?:ENSG\\d+(?:\\.\\d{1,3})?)|(?:LRG_\\d+)):)?g\\.(?:(?:(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))_(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))|(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))del|(?:(?:(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))_(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))|(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))delins(?:A|C|G|T|B|D|H|K|M|N|R|S|V|W|Y|X|-)+|(?:(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))_(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))ins(?:(?:A|C|G|T|B|D|H|K|M|N|R|S|V|W|Y|X|-)+|(?:(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))_(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))))|(?:(?:(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))_(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))|(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))del|(?:(?:(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))_(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))|(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))dup|(?:(?:(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))_(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))|(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))inv|(?:(?:(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))_(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))|(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))(?:(?:A|C|G|T|B|D|H|K|M|N|R|S|V|W|Y|X|-)+)?\\[(?:\\d+|(?:\\(\\d+_\\d+\\)))\\]|(?:(?:(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))_(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))|(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))\\|gom|(?:(?:(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))_(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))|(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))\\|lom|(?:(?:(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))_(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))|(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))\\|met=)",
+            "title": "DNA HGVS",
+            "type": "string"
+          },
+          "rnaHgvs": {
+            "description": "RNA HGVS expression (g-coordinate expression, HGVS version >=21.1)",
+            "pattern": "(?:((?:(?:NM_|NR_|XM_|XR_)\\d+(?:\\.\\d{1,3})?)|(?:ENST\\d+(?:\\.\\d{1,3})?)|(?:LRG_\\d+t\\d{1,3})):)?r\\.\\(?((?:(?:(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))_(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))|(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))=|(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))(?:a|c|g|t|b|d|h|k|m|n|r|s|v|w|y)+>(?:a|c|g|t|b|d|h|k|m|n|r|s|v|w|y)+|(?:(?:(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))_(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))|(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))delins(?:a|c|g|t|b|d|h|k|m|n|r|s|v|w|y)+|(?:(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))_(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))ins(?:(?:a|c|g|t|b|d|h|k|m|n|r|s|v|w|y)+|(?:(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))_(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))))|(?:(?:(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))_(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))|(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))del|(?:(?:(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))_(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))|(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))dup|(?:(?:(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))_(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))|(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))inv|(?:(?:(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))_(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))|(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))(?:(?:a|c|g|t|b|d|h|k|m|n|r|s|v|w|y)+)?\\[(?:\\d+|(?:\\(\\d+_\\d+\\)))\\])\\)?",
+            "title": "RNA HGVS",
+            "type": "string"
+          },
+          "proteinHgvs": {
+            "description": "Protein HGVS expression (g-coordinate expression, HGVS version >=21.1)",
+            "pattern": "(?:((?:(?:AP_|NP_|YP_|XP_|WP_)\\d+(?:\\.\\d{1,3})?)|(?:ENSP\\d+(?:\\.\\d{1,3})?)|(?:LRG_\\d+p\\d{1,3})):)?p\\.\\(?(0\\??|\\?|(?:(?:(?:(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+|(?:(?:\\(\\?_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_\\?\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))))_(?:(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+|(?:(?:\\(\\?_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_\\?\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\)))))|(?:(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+|(?:(?:\\(\\?_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_\\?\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\)))))delins(?:(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))+)|(?:(?:(?:(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+|(?:(?:\\(\\?_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_\\?\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))))_(?:(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+|(?:(?:\\(\\?_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_\\?\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\)))))|(?:(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+|(?:(?:\\(\\?_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_\\?\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\)))))del|(?:(?:(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+|(?:(?:\\(\\?_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_\\?\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))))_(?:(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+|(?:(?:\\(\\?_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_\\?\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\)))))ins(?:(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))+)|(?:(?:(?:(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+|(?:(?:\\(\\?_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_\\?\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))))_(?:(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+|(?:(?:\\(\\?_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_\\?\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\)))))|(?:(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+|(?:(?:\\(\\?_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_\\?\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\)))))dup|(?:(?:(?:(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+|(?:(?:\\(\\?_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_\\?\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))))_(?:(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+|(?:(?:\\(\\?_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_\\?\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\)))))|(?:(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+|(?:(?:\\(\\?_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_\\?\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\)))))(?:Ter|\\*)|(?:(?:(?:(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+|(?:(?:\\(\\?_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_\\?\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))))_(?:(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+|(?:(?:\\(\\?_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_\\?\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\)))))|(?:(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+|(?:(?:\\(\\?_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_\\?\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\)))))(?:(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))+)?fs(?:Ter)?(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+)))*|(?:(?:Met1ext-\\d+)|(?:Ter\\d+(?:(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))+)extTer\\d+))|\\(?(?:(?:(?:(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+|(?:(?:\\(\\?_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_\\?\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))))_(?:(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+|(?:(?:\\(\\?_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_\\?\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\)))))|(?:(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+|(?:(?:\\(\\?_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_\\?\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\)))))\\)?\\[(?:\\d+|(?:\\(\\d+_\\d+\\)))\\]|(?:(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+|(?:(?:\\(\\?_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_\\?\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))))(?:(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))+)|(?:(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+|(?:(?:\\(\\?_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_\\?\\))|(?:\\((?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+_(?:Ter|(?:Gly|Ala|Val|Leu|Ile|Met|Phe|Trp|Pro|Ser|Thr|Cys|Tyr|Asn|Gln|Asp|Glu|Lys|Arg|His))\\d+\\))))=)\\)?",
+            "title": "Protein HGVS",
+            "type": "string"
+          },
+          "genePanel": {
+            "description": "Commercial or official name of the gene panel tested to identify the variant",
+            "title": "Gene panel",
+            "type": "string"
+          },
+          "assessment": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GenomicVariantAssessmentChoices"
+              }
+            ],
+            "description": "Classification of whether the variant is present or absent in the analysis results. Relevant for genomic studies that report presence and absence of variants.",
+            "title": "Assessment"
+          },
+          "confidence": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GenomicVariantConfidenceChoices"
+              }
+            ],
+            "description": "Classification of the confidence for a true positive variant call based e.g. calling thresholds or phred-scaled confidence scores.",
+            "title": "Confidence"
+          },
+          "analysisMethod": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Analysis method used to detect the variant",
+            "title": "Analysis method",
+            "x-terminology": "StructuralVariantAnalysisMethod"
+          },
+          "clinicalRelevance": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GenomicVariantClinicalRelevanceChoices"
+              }
+            ],
+            "description": "Classification of the clinical relevance or pathogenicity of the variant.",
+            "title": "Clinical relevance"
+          },
+          "genomeAssemblyVersion": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "The reference genome assembly versionused in this analysis.",
+            "title": "Genome assembly version",
+            "x-terminology": "ReferenceGenomeBuild"
+          },
+          "molecularConsequence": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "The calculated or observed effect of a variant on its downstream transcript and, if applicable, ensuing protein sequence.",
+            "title": "Molecular consequence",
+            "x-terminology": "MolecularConsequence"
+          },
+          "copyNumber": {
+            "description": "Genomic structural variant copy number. It is a unit-less value. Note that a copy number of 1 can imply a deletion.",
+            "title": "Copy number",
+            "type": "integer"
+          },
+          "alleleFrequency": {
+            "description": "The relative frequency (value in range [0,1]) of the allele at a given locus in the sample.",
+            "title": "Allele frequency",
+            "type": "number"
+          },
+          "alleleDepth": {
+            "description": "Specifies the number of reads that identified the allele in question whether it consists of one or a small sequence of contiguous nucleotides.",
+            "title": "Allele depth (reads)",
+            "type": "integer"
+          },
+          "zygosity": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "The observed level of occurrence of the variant in the set of chromosomes.",
+            "title": "Zygosity",
+            "x-terminology": "Zygosity"
+          },
+          "source": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Variant genomic source (if known).",
+            "title": "Source",
+            "x-terminology": "GeneticVariantSource"
+          },
+          "inheritance": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Variant inheritance origin (if known).",
+            "title": "Inheritance",
+            "x-terminology": "VariantInheritance"
+          },
+          "coordinateSystem": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Genomic coordinate system used for identifying nucleotides or amino acids within a sequence.",
+            "title": "Coordinate system",
+            "x-terminology": "GenomicCoordinateSystem"
+          },
+          "clinvar": {
+            "description": "Accession number in the ClinVar variant database, given for cross-reference.",
+            "title": "ClinVar accession number",
+            "type": "string"
+          },
+          "isPathogenic": {
+            "description": "Whether the genomic variant is considered pathogenic in a clinical setting",
+            "title": "Is Pathogenic",
+            "type": "boolean"
+          },
+          "isVUS": {
+            "description": "Whether the genomic variant is considered a variant of unknown signifiance (VUS)",
+            "title": "Is VUS",
+            "type": "boolean"
+          },
+          "cytogeneticLocation": {
+            "description": "Cytogenetic location of the variant (e.g. 17q21.31)",
+            "title": "Cytogenetic Location",
+            "type": "string"
+          },
+          "chromosomes": {
+            "description": "Chromosomes involved in the variant (e.g. 17, X)",
+            "items": {
+              "type": "string"
+            },
+            "title": "Chromosomes",
+            "type": "array"
+          },
+          "dnaReferenceSequence": {
+            "description": "DNA reference sequence identifier used as dna HGVS reference.",
+            "pattern": "(?:(?:NM_|NR_|XM_|XR_)\\d+(?:\\.\\d{1,3})?)|(?:ENST\\d+(?:\\.\\d{1,3})?)|(?:LRG_\\d+t\\d{1,3})|(?:(?:NC_|AC_|NG_|NT_|NW_|NZ_|GCF_)\\d+(?:\\.\\d{1,3})?)|(?:ENSG\\d+(?:\\.\\d{1,3})?)|(?:LRG_\\d+)",
+            "title": "DNA HGVS RefSeq",
+            "type": "string"
+          },
+          "dnaChangePosition": {
+            "description": "DNA-level single-nucleotide position where the variant was found.",
+            "title": "DNA change position",
+            "type": "integer"
+          },
+          "dnaChangePositionRange": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialRange"
+              }
+            ],
+            "description": "DNA-level single-nucleotide position where the variant was found.",
+            "title": "DNA change range"
+          },
+          "dnaChangeType": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DNAChangeType"
+              }
+            ],
+            "description": "DNA variant type of variant.",
+            "title": "DNA change type"
+          },
+          "rnaReferenceSequence": {
+            "description": "RNA reference sequence identifier used as rna HGVS reference.",
+            "pattern": "(?:(?:NM_|NR_|XM_|XR_)\\d+(?:\\.\\d{1,3})?)|(?:ENST\\d+(?:\\.\\d{1,3})?)|(?:LRG_\\d+t\\d{1,3})",
+            "title": "RNA HGVS RefSeq",
+            "type": "string"
+          },
+          "rnaChangePosition": {
+            "description": "RNA-level nucleotide position/range where the variant was found.",
+            "pattern": "(?:(?:(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\))_(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))|(?:(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))|\\((?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))_(?:(?:(?:\\*\\d+(?:[\\+-]\\d+)?)|(?:-\\d+(?:[\\+-]\\d+)?)|(?:(?:(?:\\+|-)\\d+)|(?:(?:\\?|\\*|\\d+)(?:\\+|-)\\d+)))|(?:\\?|\\*|\\d+))\\)))",
+            "title": "RNA change position",
+            "type": "string"
+          },
+          "rnaChangeType": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RNAChangeType"
+              }
+            ],
+            "description": "RNA variant type of variant.",
+            "title": "RNA change type"
+          },
+          "proteinReferenceSequence": {
+            "description": "Protein reference sequence identifier used as protein HGVS reference.",
+            "pattern": "(?:(?:AP_|NP_|YP_|XP_|WP_)\\d+(?:\\.\\d{1,3})?)|(?:ENSP\\d+(?:\\.\\d{1,3})?)|(?:LRG_\\d+p\\d{1,3})",
+            "title": "Protein HGVS RefSeq",
+            "type": "string"
+          },
+          "proteinChangeType": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProteinChangeType"
+              }
+            ],
+            "description": "Protein variant type of variant.",
+            "title": "Protein change type"
+          },
+          "nucleotidesLength": {
+            "description": "Length of the variant in nucleotides",
+            "title": "Variant length",
+            "type": "integer"
+          },
+          "regions": {
+            "description": "Gene regions (exons, introns, UTRs) affected by the variant. Estimated from MANE reference sequences.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Gene regions",
+            "type": "array"
+          }
+        },
+        "title": "PartialGenomicVariant",
+        "type": "object"
+      },
+      "PartialGleasonGrade": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `GleasonGrade`.",
+        "properties": {
+          "stagingDomain": {
+            "const": "gleason",
+            "description": "Staging domain discriminator category",
+            "title": "Staging domain",
+            "type": "string"
+          },
+          "stage": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "The value of the Gleason grade stage",
+            "title": "Gleason grade Stage",
+            "x-terminology": "GleasonGradeGroupStage"
+          }
+        },
+        "title": "PartialGleasonGrade",
+        "type": "object"
+      },
+      "PartialHomologousRecombinationDeficiency": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `HomologousRecombinationDeficiency`.",
+        "properties": {
+          "category": {
+            "const": "homologous_recombination_deficiency",
+            "description": "Genomic signature discriminator category",
+            "title": "Category",
+            "type": "string"
+          },
+          "value": {
+            "description": "Homologous recombination deficiency (HRD) score value",
+            "title": "Value",
+            "type": "number"
+          },
+          "interpretation": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/HomologousRecombinationDeficiencyInterpretationChoices"
+              }
+            ],
+            "description": "Homologous recombination deficiency (HRD) interpretation",
+            "title": "Interpretation"
+          }
+        },
+        "title": "PartialHomologousRecombinationDeficiency",
+        "type": "object"
+      },
+      "PartialINRGSSStage": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `INRGSSStage`.",
+        "properties": {
+          "stagingDomain": {
+            "const": "inrgss",
+            "description": "Staging domain discriminator category",
+            "title": "Staging domain",
+            "type": "string"
+          },
+          "stage": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "The value of the INRGSS stage",
+            "title": "INRGSS Stage",
+            "x-terminology": "NeuroblastomaINRGSSStage"
+          }
+        },
+        "title": "PartialINRGSSStage",
+        "type": "object"
+      },
+      "PartialINSSStage": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `INSSStage`.",
+        "properties": {
+          "stagingDomain": {
+            "const": "inss",
+            "description": "Staging domain discriminator category",
+            "title": "Staging domain",
+            "type": "string"
+          },
+          "stage": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "The value of the INSS stage",
+            "title": "INSS Stage",
+            "x-terminology": "NeuroblastomaINSSStage"
+          }
+        },
+        "title": "PartialINSSStage",
+        "type": "object"
+      },
+      "PartialISSStaging": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `ISSStaging`.",
+        "properties": {
+          "stagingDomain": {
+            "const": "iss",
+            "description": "Staging domain discriminator category",
+            "title": "Staging domain",
+            "type": "string"
+          },
+          "stage": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "The value of theISS stage",
+            "title": "ISS Stage",
+            "x-terminology": "MyelomaISSStage"
+          }
+        },
+        "title": "PartialISSStaging",
+        "type": "object"
+      },
+      "PartialLifestyle": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `Lifestyle`.",
+        "properties": {
+          "smokingStatus": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Tobacco consumption status",
+            "title": "Smoking Status",
+            "x-terminology": "SmokingStatus"
+          },
+          "smokingPackyears": {
+            "description": "Smoking pack-years (if applicable)",
+            "title": "Smoking packyears",
+            "type": "number"
+          },
+          "smokingQuited": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Measure"
+              }
+            ],
+            "description": "Estimated time since quitting smoking (if applicable)",
+            "title": "Time since quitted smoking",
+            "x-default-unit": "year",
+            "x-measure": "Time"
+          },
+          "alcoholConsumption": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Frequency of alcohol consumption",
+            "title": "Alcohol consumption",
+            "x-terminology": "AlcoholConsumptionFrequency"
+          },
+          "nightSleep": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Measure"
+              }
+            ],
+            "description": "Estimated average sleep time per night",
+            "title": "Night sleep",
+            "x-default-unit": "hour",
+            "x-measure": "Time"
+          },
+          "recreationalDrugs": {
+            "description": "Any recreational drug(s) used by the patient",
+            "items": {
+              "$ref": "#/components/schemas/PartialCodedConcept"
+            },
+            "title": "Recreational drugs",
+            "type": "array",
+            "x-terminology": "RecreationalDrug"
+          },
+          "exposures": {
+            "description": "Environmental or occupational exposures to hazards or carcinogenic agents",
+            "items": {
+              "$ref": "#/components/schemas/PartialCodedConcept"
+            },
+            "title": "Exposures",
+            "type": "array",
+            "x-terminology": "ExposureAgent"
+          }
+        },
+        "title": "PartialLifestyle",
+        "type": "object"
+      },
+      "PartialLossOfHeterozygosity": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `LossOfHeterozygosity`.",
+        "properties": {
+          "category": {
+            "const": "loss_of_heterozygosity",
+            "description": "Genomic signature discriminator category",
+            "title": "Category",
+            "type": "string"
+          },
+          "value": {
+            "description": "Loss of heterozygosity (LOH) as a percentage",
+            "title": "Value",
+            "type": "number"
+          }
+        },
+        "title": "PartialLossOfHeterozygosity",
+        "type": "object"
+      },
+      "PartialLymphomaStaging": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `LymphomaStaging`.",
+        "properties": {
+          "stagingDomain": {
+            "const": "lymphoma",
+            "description": "Staging domain discriminator category",
+            "title": "Staging domain",
+            "type": "string"
+          },
+          "stage": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "The value of the Lymphoma stage",
+            "title": "Lymphoma Stage",
+            "x-terminology": "LymphomaStage"
+          },
+          "methodology": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Methodology used for the Lymphoma staging",
+            "title": "Lymphoma staging methodology",
+            "x-terminology": "LymphomaStagingMethod"
+          },
+          "bulky": {
+            "description": "Bulky modifier indicating if the lymphoma has the presence of bulky disease.",
+            "title": "Bulky disease modifier",
+            "type": "boolean"
+          },
+          "pathological": {
+            "description": "Whether the staging was based on clinical or pathologic evidence.",
+            "title": "Pathological staging",
+            "type": "boolean"
+          },
+          "modifiers": {
+            "description": "Qualifier acting as modifier for the lymphoma stage",
+            "items": {
+              "$ref": "#/components/schemas/PartialCodedConcept"
+            },
+            "title": "Lymphoma stage modifier",
+            "type": "array",
+            "x-terminology": "LymphomaStageValueModifier"
+          }
+        },
+        "title": "PartialLymphomaStaging",
+        "type": "object"
+      },
+      "PartialMicrosatelliteInstability": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `MicrosatelliteInstability`.",
+        "properties": {
+          "category": {
+            "const": "microsatellite_instability",
+            "description": "Genomic signature discriminator category",
+            "title": "Category",
+            "type": "string"
+          },
+          "value": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Microsatellite instability (MSI) classification",
+            "title": "Value",
+            "x-terminology": "MicrosatelliteInstabilityState"
+          }
+        },
+        "title": "PartialMicrosatelliteInstability",
+        "type": "object"
+      },
+      "PartialMolecularTherapeuticRecommendation": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `MolecularTherapeuticRecommendation`.",
+        "properties": {
+          "expectedEffect": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Classification of the expected effect of the drug",
+            "title": "Expected medication action",
+            "x-terminology": "ExpectedDrugAction"
+          },
+          "clinicalTrial": {
+            "description": "Clinical trial (NCT-Iddentifier) recommended by the board for enrollment",
+            "title": "Recommended clinical trial",
+            "type": "string"
+          },
+          "offLabelUse": {
+            "description": "Whether the medication(s) recommended were off-label",
+            "title": "Off-label use",
+            "type": "boolean"
+          },
+          "withinSoc": {
+            "description": "Whether the medication(s) recommended were within standard of care",
+            "title": "Within SOC",
+            "type": "boolean"
+          },
+          "drugs": {
+            "description": "Drugs(s) being recommended",
+            "items": {
+              "$ref": "#/components/schemas/PartialCodedConcept"
+            },
+            "title": "Drug(s)",
+            "type": "array",
+            "x-terminology": "AntineoplasticAgent"
+          }
+        },
+        "title": "PartialMolecularTherapeuticRecommendation",
+        "type": "object"
+      },
+      "PartialMolecularTumorBoard": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `MolecularTumorBoard`.",
+        "properties": {
+          "category": {
+            "const": "molecular",
+            "description": "Tumor board discriminator category",
+            "title": "Category",
+            "type": "string"
+          },
+          "recommendations": {
+            "description": "Recommendation(s) provided by the board regarding the patient's care",
+            "items": {
+              "$ref": "#/components/schemas/PartialCodedConcept"
+            },
+            "title": "Recommendations",
+            "type": "array",
+            "x-terminology": "TumorBoardRecommendation"
+          },
+          "conductedMolecularComparison": {
+            "description": "Indicates whether a molecular comparison was conducted during the molecular tumor board",
+            "title": "Conducted molecular comparison?",
+            "type": "boolean"
+          },
+          "conductedCupCharacterization": {
+            "description": "Whether there was a cancer of unknown primary (CUP) characterization during the molecular tumor board.",
+            "title": "Conducted CUP characterization?",
+            "type": "boolean"
+          },
+          "characterizedCup": {
+            "description": "Whether the cancer of unknown primary (CUP) characterization was successful.",
+            "title": "Successful CUP characterization?",
+            "type": "boolean"
+          },
+          "reviewedReports": {
+            "description": "List of genomic reports reviewed during the board meeting.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Reviewed Reports",
+            "type": "array"
+          },
+          "therapeuticRecommendations": {
+            "description": "Therapeutic recommendations of the molecular tumor board",
+            "items": {
+              "$ref": "#/components/schemas/PartialMolecularTherapeuticRecommendation"
+            },
+            "title": "Therapeutic Recommendations",
+            "type": "array"
+          }
+        },
+        "title": "PartialMolecularTumorBoard",
+        "type": "object"
+      },
+      "PartialNeoplasticEntity": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `NeoplasticEntity`.",
+        "properties": {
+          "relationship": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/NeoplasticEntityRelationshipChoices"
+              }
+            ],
+            "description": "Relationship linking secondary and recurrent tumors to their primary origin or for distinguishing between different phases of the disease.",
+            "title": "Neoplastic relationship"
+          },
+          "topography": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Anatomical location of the neoplasm(s)",
+            "title": "Topography",
+            "x-terminology": "CancerTopography"
+          },
+          "morphology": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Describes the cell type of the tumor and its biologic activity, in other words, the characteristics of the tumor itself",
+            "title": "Morphology",
+            "x-terminology": "CancerMorphology"
+          },
+          "differentitation": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Morphologic differentitation characteristics of the neoplasm(s)",
+            "title": "Differentiation",
+            "x-terminology": "HistologyDifferentiation"
+          },
+          "laterality": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Laterality qualifier for the location of the neoplasm(s)",
+            "title": "Laterality",
+            "x-terminology": "LateralityQualifier"
+          },
+          "topographyGroup": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Broad anatomical location of the neoplastic entity",
+            "title": "Topographical group",
+            "x-terminology": "CancerTopographyGroup"
+          }
+        },
+        "title": "PartialNeoplasticEntity",
+        "type": "object"
+      },
+      "PartialPatientCaseBundle": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `PatientCaseBundle`.",
+        "properties": {
+          "consentStatus": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PatientCaseConsentStatusChoices"
+              }
+            ],
+            "description": "Status of the general consent by the patient for the use of their data for research purposes",
+            "title": "Consent status"
+          },
+          "gender": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Gender of the patient for legal/administrative purposes",
+            "title": "Gender",
+            "x-terminology": "AdministrativeGender"
+          },
+          "race": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Race of the patient",
+            "title": "Race",
+            "x-terminology": "Race"
+          },
+          "sexAtBirth": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Sex assigned at birth",
+            "title": "Birth sex",
+            "x-terminology": "BirthSex"
+          },
+          "genderIdentity": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "The patient's innate sense of their gender as reported",
+            "title": "Gender identity",
+            "x-terminology": "GenderIdentity"
+          },
+          "vitalStatus": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PatientCaseVitalStatusChoices"
+              }
+            ],
+            "description": "Whether the patient is known to be alive or decaeased or is unknkown.",
+            "title": "Vital status"
+          },
+          "causeOfDeath": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Classification of the cause of death.",
+            "title": "Cause of death",
+            "x-terminology": "CauseOfDeath"
+          },
+          "age": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "$ref": "#/components/schemas/AgeBin"
+              }
+            ],
+            "description": "Approximate age of the patient in years",
+            "title": "Age"
+          },
+          "overallSurvival": {
+            "description": "Overall survival of the patient since diagnosis",
+            "title": "Overall survival",
+            "type": "number"
+          },
+          "ageAtDiagnosis": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "$ref": "#/components/schemas/AgeBin"
+              }
+            ],
+            "description": "Approximate age of the patient in years at the time of the initial diagnosis",
+            "title": "Age at diagnosis"
+          },
+          "neoplasticEntities": {
+            "description": "Matching criteria for neoplastic entities.",
+            "items": {
+              "$ref": "#/components/schemas/PartialNeoplasticEntity"
+            },
+            "title": "Neoplastic entities",
+            "type": "array"
+          },
+          "stagings": {
+            "description": "Matching criteria for stagings.",
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/PartialTNMStaging"
+                },
+                {
+                  "$ref": "#/components/schemas/PartialFIGOStaging"
+                },
+                {
+                  "$ref": "#/components/schemas/PartialBinetStaging"
+                },
+                {
+                  "$ref": "#/components/schemas/PartialRaiStaging"
+                },
+                {
+                  "$ref": "#/components/schemas/PartialBreslowDepth"
+                },
+                {
+                  "$ref": "#/components/schemas/PartialClarkStaging"
+                },
+                {
+                  "$ref": "#/components/schemas/PartialISSStaging"
+                },
+                {
+                  "$ref": "#/components/schemas/PartialRISSStaging"
+                },
+                {
+                  "$ref": "#/components/schemas/PartialGleasonGrade"
+                },
+                {
+                  "$ref": "#/components/schemas/PartialINSSStage"
+                },
+                {
+                  "$ref": "#/components/schemas/PartialINRGSSStage"
+                },
+                {
+                  "$ref": "#/components/schemas/PartialWilmsStage"
+                },
+                {
+                  "$ref": "#/components/schemas/PartialRhabdomyosarcomaClinicalGroup"
+                },
+                {
+                  "$ref": "#/components/schemas/PartialLymphomaStaging"
+                }
+              ]
+            },
+            "title": "Stagings",
+            "type": "array"
+          },
+          "tumorMarkers": {
+            "description": "Matching criteria for tumor markers.",
+            "items": {
+              "$ref": "#/components/schemas/PartialTumorMarker"
+            },
+            "title": "Tumor markers",
+            "type": "array"
+          },
+          "riskAssessments": {
+            "description": "Matching criteria for risk assessments.",
+            "items": {
+              "$ref": "#/components/schemas/PartialRiskAssessment"
+            },
+            "title": "Risk assessments",
+            "type": "array"
+          },
+          "therapyLines": {
+            "description": "Matching criteria for therapy lines.",
+            "items": {
+              "$ref": "#/components/schemas/PartialTherapyLine"
+            },
+            "title": "Therapy lines",
+            "type": "array"
+          },
+          "systemicTherapies": {
+            "description": "Matching criteria for systemic therapies.",
+            "items": {
+              "$ref": "#/components/schemas/PartialSystemicTherapy"
+            },
+            "title": "Systemic therapies",
+            "type": "array"
+          },
+          "surgeries": {
+            "description": "Matching criteria for surgeries.",
+            "items": {
+              "$ref": "#/components/schemas/PartialSurgery"
+            },
+            "title": "Surgeries",
+            "type": "array"
+          },
+          "radiotherapies": {
+            "description": "Matching criteria for radiotherapies.",
+            "items": {
+              "$ref": "#/components/schemas/PartialRadiotherapy"
+            },
+            "title": "Radiotherapies",
+            "type": "array"
+          },
+          "adverseEvents": {
+            "description": "Matching criteria for adverse events.",
+            "items": {
+              "$ref": "#/components/schemas/PartialAdverseEvent"
+            },
+            "title": "Adverse events",
+            "type": "array"
+          },
+          "treatmentResponses": {
+            "description": "Matching criteria for treatment responses.",
+            "items": {
+              "$ref": "#/components/schemas/PartialTreatmentResponse"
+            },
+            "title": "Treatment responses",
+            "type": "array"
+          },
+          "performanceStatus": {
+            "description": "Matching criteria for performance status.",
+            "items": {
+              "$ref": "#/components/schemas/PartialPerformanceStatus"
+            },
+            "title": "Performance status",
+            "type": "array"
+          },
+          "comorbidities": {
+            "description": "Matching criteria for comorbidities.",
+            "items": {
+              "$ref": "#/components/schemas/PartialComorbiditiesAssessment"
+            },
+            "title": "Comorbidities",
+            "type": "array"
+          },
+          "genomicVariants": {
+            "description": "Matching criteria for genomic variants.",
+            "items": {
+              "$ref": "#/components/schemas/PartialGenomicVariant"
+            },
+            "title": "Genomic variants",
+            "type": "array"
+          },
+          "genomicSignatures": {
+            "description": "Matching criteria for genomic signatures.",
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/PartialTumorMutationalBurden"
+                },
+                {
+                  "$ref": "#/components/schemas/PartialMicrosatelliteInstability"
+                },
+                {
+                  "$ref": "#/components/schemas/PartialLossOfHeterozygosity"
+                },
+                {
+                  "$ref": "#/components/schemas/PartialHomologousRecombinationDeficiency"
+                },
+                {
+                  "$ref": "#/components/schemas/PartialTumorNeoantigenBurden"
+                },
+                {
+                  "$ref": "#/components/schemas/PartialAneuploidScore"
+                }
+              ]
+            },
+            "title": "Genomic signatures",
+            "type": "array"
+          },
+          "vitals": {
+            "description": "Matching criteria for vitals.",
+            "items": {
+              "$ref": "#/components/schemas/PartialVitals"
+            },
+            "title": "Vitals",
+            "type": "array"
+          },
+          "lifestyles": {
+            "description": "Matching criteria for lifestyles.",
+            "items": {
+              "$ref": "#/components/schemas/PartialLifestyle"
+            },
+            "title": "Lifestyles",
+            "type": "array"
+          },
+          "familyHistory": {
+            "description": "Matching criteria for family history.",
+            "items": {
+              "$ref": "#/components/schemas/PartialFamilyHistory"
+            },
+            "title": "Family history",
+            "type": "array"
+          },
+          "tumorBoards": {
+            "description": "Matching criteria for tumor boards.",
+            "items": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/PartialUnspecifiedTumorBoard"
+                },
+                {
+                  "$ref": "#/components/schemas/PartialMolecularTumorBoard"
+                }
+              ]
+            },
+            "title": "Tumor boards",
+            "type": "array"
+          }
+        },
+        "title": "PartialPatientCaseBundle",
+        "type": "object"
+      },
+      "PartialPerformanceStatus": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `PerformanceStatus`.",
+        "properties": {
+          "ecogScore": {
+            "description": "ECOG Performance Status Score",
+            "title": "ECOG Score",
+            "type": "integer"
+          },
+          "karnofskyScore": {
+            "description": "Karnofsky Performance Status Score",
+            "title": "Karnofsky Score",
+            "type": "integer"
+          },
+          "ecogInterpretation": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Official interpretation of the ECOG score",
+            "title": "ECOG Interpreation",
+            "x-terminology": "ECOGPerformanceStatusInterpretation"
+          },
+          "karnofskyInterpretation": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Official interpretation of the Karnofsky score",
+            "title": "Karnofsky Interpreation",
+            "x-terminology": "KarnofskyPerformanceStatusInterpretation"
+          }
+        },
+        "title": "PartialPerformanceStatus",
+        "type": "object"
+      },
+      "PartialRISSStaging": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `RISSStaging`.",
+        "properties": {
+          "stagingDomain": {
+            "const": "riss",
+            "description": "Staging domain discriminator category",
+            "title": "Staging domain",
+            "type": "string"
+          },
+          "stage": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "The value of the RISS stage",
+            "title": "RISS Stage",
+            "x-terminology": "MyelomaRISSStage"
+          }
+        },
+        "title": "PartialRISSStaging",
+        "type": "object"
+      },
+      "PartialRadiotherapy": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `Radiotherapy`.",
+        "properties": {
+          "sessions": {
+            "description": "The total number of radiotherapy sessions over the treatment period.",
+            "title": "Total sessions",
+            "type": "integer"
+          },
+          "intent": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RadiotherapyIntentChoices"
+              }
+            ],
+            "description": "Treatment intent of the system therapy",
+            "title": "Intent"
+          },
+          "terminationReason": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Explanation for the premature or planned termination of the radiotherapy",
+            "title": "Termination reason",
+            "x-terminology": "TreatmentTerminationReason"
+          },
+          "duration": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Measure"
+              }
+            ],
+            "description": "Duration of treatment",
+            "title": "Duration",
+            "x-measure": "Time"
+          },
+          "dosages": {
+            "description": "Radiation doses administered during the radiotherapy",
+            "items": {
+              "$ref": "#/components/schemas/PartialRadiotherapyDosage"
+            },
+            "title": "Dosages",
+            "type": "array"
+          },
+          "settings": {
+            "description": "Settings of the radiotherapy irradiation procedure",
+            "items": {
+              "$ref": "#/components/schemas/PartialRadiotherapySetting"
+            },
+            "title": "Settings",
+            "type": "array"
+          }
+        },
+        "title": "PartialRadiotherapy",
+        "type": "object"
+      },
+      "PartialRadiotherapyDosage": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `RadiotherapyDosage`.",
+        "properties": {
+          "fractions": {
+            "description": "The total number of radiotherapy fractions delivered over the treatment period.",
+            "title": "Total fractions",
+            "type": "integer"
+          },
+          "dose": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Measure"
+              }
+            ],
+            "description": "Total radiation dose delivered over the full radiotherapy course",
+            "title": "Total radiation dose",
+            "x-default-unit": "Gy",
+            "x-measure": "RadiationDose"
+          },
+          "irradiatedVolume": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Anatomical location of the irradiated volume",
+            "title": "Irradiated volume",
+            "x-terminology": "RadiotherapyTreatmentLocation"
+          },
+          "irradiatedVolumeMorphology": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Morphology of the anatomical location of the irradiated volume",
+            "title": "Irradiated volume morphology",
+            "x-terminology": "RadiotherapyVolumeType"
+          },
+          "irradiatedVolumeQualifier": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "General qualifier for the anatomical location of the irradiated volume",
+            "title": "Irradiated volume qualifier",
+            "x-terminology": "RadiotherapyTreatmentLocationQualifier"
+          }
+        },
+        "title": "PartialRadiotherapyDosage",
+        "type": "object"
+      },
+      "PartialRadiotherapySetting": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `RadiotherapySetting`.",
+        "properties": {
+          "modality": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Modality of external beam or brachytherapy radiation procedures",
+            "title": "Modality",
+            "x-terminology": "RadiotherapyModality"
+          },
+          "technique": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Technique of external beam or brachytherapy radiation procedures",
+            "title": "Technique",
+            "x-terminology": "RadiotherapyTechnique"
+          }
+        },
+        "title": "PartialRadiotherapySetting",
+        "type": "object"
+      },
+      "PartialRaiStaging": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `RaiStaging`.",
+        "properties": {
+          "stagingDomain": {
+            "const": "rai",
+            "description": "Staging domain discriminator category",
+            "title": "Staging domain",
+            "type": "string"
+          },
+          "stage": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "The value of the Rai stage",
+            "title": "Rai Stage",
+            "x-terminology": "RaiStage"
+          },
+          "methodology": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Methodology used for the Rai staging",
+            "title": "Rai staging methodology",
+            "x-terminology": "RaiStagingMethod"
+          }
+        },
+        "title": "PartialRaiStaging",
+        "type": "object"
+      },
+      "PartialRange": {
+        "additionalProperties": false,
+        "description": "Partial representation of a numeric interval for matching queries.\n\nAttributes:\n    start (Nullable[int | float]): Lower bound of the range.\n    end (Nullable[int | float]): Upper bound of the range.",
+        "properties": {
+          "start": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "description": "The lower bound of the range.",
+            "title": "Start"
+          },
+          "end": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "description": "The upper bound of the range.",
+            "title": "End"
+          }
+        },
+        "title": "PartialRange",
+        "type": "object"
+      },
+      "PartialRhabdomyosarcomaClinicalGroup": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `RhabdomyosarcomaClinicalGroup`.",
+        "properties": {
+          "stagingDomain": {
+            "const": "rhabdomyosarcoma",
+            "description": "Staging domain discriminator category",
+            "title": "Staging domain",
+            "type": "string"
+          },
+          "stage": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "The value of the rhabdomyosarcoma clinical group",
+            "title": "Rhabdomyosarcoma clinical group",
+            "x-terminology": "RhabdomyosarcomaClinicalGroup"
+          }
+        },
+        "title": "PartialRhabdomyosarcomaClinicalGroup",
+        "type": "object"
+      },
+      "PartialRiskAssessment": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `RiskAssessment`.",
+        "properties": {
+          "methodology": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Indicates the method or type of risk assessment",
+            "title": "Assessment methodology",
+            "x-terminology": "CancerRiskAssessmentMethod"
+          },
+          "risk": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Assessed risk",
+            "title": "Risk",
+            "x-terminology": "CancerRiskAssessmentClassification"
+          },
+          "score": {
+            "description": "Quantitative score used to classify the risk",
+            "title": "Score",
+            "type": "number"
+          }
+        },
+        "title": "PartialRiskAssessment",
+        "type": "object"
+      },
+      "PartialSurgery": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `Surgery`.",
+        "properties": {
+          "procedure": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "The specific surgical procedure that was performed",
+            "title": "Surgical procedure",
+            "x-terminology": "SurgicalProcedure"
+          },
+          "intent": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SurgeryIntentChoices"
+              }
+            ],
+            "description": "Therapeutic intent of the surgery",
+            "title": "Intent"
+          },
+          "bodysite": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Anatomical location of the surgery",
+            "title": "Anatomical location",
+            "x-terminology": "CancerTopography"
+          },
+          "bodysiteQualifier": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "General qualifier for the anatomical location of the surgery",
+            "title": "Anatomical location qualifier",
+            "x-terminology": "BodyLocationQualifier"
+          },
+          "bodysiteLaterality": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Laterality for the anatomical location of the surgery",
+            "title": "Anatomical location laterality",
+            "x-terminology": "LateralityQualifier"
+          },
+          "outcome": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "The outcome of the surgery",
+            "title": "Outcome",
+            "x-terminology": "ProcedureOutcome"
+          }
+        },
+        "title": "PartialSurgery",
+        "type": "object"
+      },
+      "PartialSystemicTherapy": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `SystemicTherapy`.",
+        "properties": {
+          "cycles": {
+            "description": "The total number of treatment cycles during the treatment period.",
+            "title": "Cycles",
+            "type": "integer"
+          },
+          "intent": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SystemicTherapyIntentChoices"
+              }
+            ],
+            "description": "Treatment intent of the system therapy",
+            "title": "Intent"
+          },
+          "adjunctiveRole": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Indicates the role of the adjunctive therapy (if applicable).",
+            "title": "Treatment Role",
+            "x-terminology": "AdjunctiveTherapyRole"
+          },
+          "terminationReason": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Explanation for the premature or planned termination of the systemic therapy",
+            "title": "Termination reason",
+            "x-terminology": "TreatmentTerminationReason"
+          },
+          "medications": {
+            "description": "Medications administered during the systemic therapy",
+            "items": {
+              "$ref": "#/components/schemas/PartialSystemicTherapyMedication"
+            },
+            "title": "Medications",
+            "type": "array"
+          },
+          "isAdjunctive": {
+            "description": "Indicates whether it is adjunctive therapy instead of a primary therapy",
+            "title": "Treatment Role",
+            "type": "boolean"
+          },
+          "duration": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Measure"
+              }
+            ],
+            "description": "Duration of treatment",
+            "title": "Duration",
+            "x-default-unit": "day",
+            "x-measure": "Time"
+          }
+        },
+        "title": "PartialSystemicTherapy",
+        "type": "object"
+      },
+      "PartialSystemicTherapyMedication": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `SystemicTherapyMedication`.",
+        "properties": {
+          "drug": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Antineoplastic drug/medication administered to the patient",
+            "title": "Antineoplastic Drug",
+            "x-terminology": "AntineoplasticAgent"
+          },
+          "route": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Drug administration route",
+            "title": "Route",
+            "x-terminology": "DosageRoute"
+          },
+          "usedOfflabel": {
+            "description": "Indicates whether a medication was used off-label at the time of administration",
+            "title": "Off-label use",
+            "type": "boolean"
+          },
+          "withinSoc": {
+            "description": "Indicates whether a medication was within standard of care (SOC) at the time of administration.",
+            "title": "Within SOC",
+            "type": "boolean"
+          },
+          "dosageMassConcentration": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Measure"
+              }
+            ],
+            "description": "Dosage of the medication expressed in mass concentration (if revelant/appliccable)",
+            "title": "Dosage - Mass concentration",
+            "x-default-unit": "g/l",
+            "x-measure": "MassConcentration"
+          },
+          "dosageMass": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Measure"
+              }
+            ],
+            "description": "Dosage of the medication expressed in a fixed mass (if revelant/appliccable)",
+            "title": "Dosage - Fixed Mass",
+            "x-default-unit": "g",
+            "x-measure": "Mass"
+          },
+          "dosageVolume": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Measure"
+              }
+            ],
+            "description": "Dosage of the medication expressed in a volume (if revelant/appliccable)",
+            "title": "Dosage - Volume",
+            "x-default-unit": "l",
+            "x-measure": "Volume"
+          },
+          "dosageMassSurface": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Measure"
+              }
+            ],
+            "description": "Dosage of the medication expressed in a mass per body surface area (if revelant/appliccable)",
+            "title": "Dosage - Mass per body surface",
+            "x-default-unit": "g/square_meter",
+            "x-measure": "MassPerArea"
+          },
+          "dosageRateMassConcentration": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Measure"
+              }
+            ],
+            "description": "Dosage rate of the medication expressed in mass concentration (if revelant/appliccable)",
+            "title": "Dosage rate - Mass concentration",
+            "x-default-unit": "g/l/s",
+            "x-measure": "MassConcentrationPerTime"
+          },
+          "dosageRateMass": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Measure"
+              }
+            ],
+            "description": "Dosage rate of the medication expressed in a fixed mass (if revelant/appliccable)",
+            "title": "Dosage rate - Fixed Mass",
+            "x-default-unit": "g/s",
+            "x-measure": "MassPerTime"
+          },
+          "dosageRateVolume": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Measure"
+              }
+            ],
+            "description": "Dosage rate of the medication expressed in a volume (if revelant/appliccable)",
+            "title": "Dosage rate - Volume",
+            "x-default-unit": "l/s",
+            "x-measure": "VolumePerTime"
+          },
+          "dosageRateMassSurface": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Measure"
+              }
+            ],
+            "description": "Dosage rate of the medication expressed in a mass per body surface area (if revelant/appliccable)",
+            "title": "Dosage rate - Mass per body surface",
+            "x-default-unit": "g/square_meter/s",
+            "x-measure": "MassPerAreaPerTime"
+          }
+        },
+        "title": "PartialSystemicTherapyMedication",
+        "type": "object"
+      },
+      "PartialTNMStaging": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `TNMStaging`.",
+        "properties": {
+          "stagingDomain": {
+            "const": "tnm",
+            "description": "Staging domain discriminator category",
+            "title": "Staging domain",
+            "type": "string"
+          },
+          "stage": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "The classification of the TNM stage",
+            "title": "TNM Stage",
+            "x-terminology": "TNMStage"
+          },
+          "methodology": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Methodology used for TNM staging",
+            "title": "TNM Staging methodology",
+            "x-terminology": "TNMStagingMethod"
+          },
+          "pathological": {
+            "description": "Whether the staging was based on pathological (true) or clinical (false) evidence.",
+            "title": "Pathological staging",
+            "type": "boolean"
+          },
+          "primaryTumor": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "T stage (extent of the primary tumor)",
+            "title": "T Stage",
+            "x-terminology": "TNMPrimaryTumorCategory"
+          },
+          "regionalNodes": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "N stage (degree of spread to regional lymph nodes)",
+            "title": "N Stage",
+            "x-terminology": "TNMRegionalNodesCategory"
+          },
+          "distantMetastases": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "M stage (presence of distant metastasis)",
+            "title": "M Stage",
+            "x-terminology": "TNMDistantMetastasesCategory"
+          },
+          "grade": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "G stage (grade of the cancer cells)",
+            "title": "G Stage",
+            "x-terminology": "TNMGradeCategory"
+          },
+          "residualTumor": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "R stage (extent of residual tumor cells after operation)",
+            "title": "R Stage",
+            "x-terminology": "TNMResidualTumorCategory"
+          },
+          "lymphaticInvasion": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "L stage (invasion into lymphatic vessels)",
+            "title": "L Stage",
+            "x-terminology": "TNMLymphaticInvasionCategory"
+          },
+          "venousInvasion": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "V stage (invasion into venous vessels)",
+            "title": "V Stage",
+            "x-terminology": "TNMVenousInvasionCategory"
+          },
+          "perineuralInvasion": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Pn stage (invasion into adjunct nerves)",
+            "title": "Pn Stage",
+            "x-terminology": "TNMPerineuralInvasionCategory"
+          },
+          "serumTumorMarkerLevel": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "S stage (serum tumor marker level)",
+            "title": "S Stage",
+            "x-terminology": "TNMSerumTumorMarkerLevelCategory"
+          }
+        },
+        "title": "PartialTNMStaging",
+        "type": "object"
+      },
+      "PartialTherapyLine": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `TherapyLine`.",
+        "properties": {
+          "ordinal": {
+            "description": "Number indicating the sequence in which this block of treatments were administered to the patient",
+            "title": "Line ordinal number",
+            "type": "integer"
+          },
+          "intent": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TherapyLineIntentChoices"
+              }
+            ],
+            "description": "Treatment intent of the system therapy",
+            "title": "Intent"
+          },
+          "label": {
+            "description": "Label categorizing the therapy line",
+            "title": "Label",
+            "type": "string"
+          },
+          "progressionFreeSurvival": {
+            "description": "Progression-free survival (PFS) of the patient for the therapy line",
+            "title": "Progression-free survival in months",
+            "type": "number"
+          }
+        },
+        "title": "PartialTherapyLine",
+        "type": "object"
+      },
+      "PartialTreatmentResponse": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `TreatmentResponse`.",
+        "properties": {
+          "recist": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "The classification of the treatment response according to RECIST",
+            "title": "RECIST",
+            "x-terminology": "CancerTreatmentResponse"
+          },
+          "recistInterpreted": {
+            "description": "Indicates whether the RECIST value was interpreted or taken from the radiology report",
+            "title": "RECIST Interpreted?",
+            "type": "boolean"
+          },
+          "methodology": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "Method used to assess and classify the treatment response",
+            "title": "Assessment method",
+            "x-terminology": "CancerTreatmentResponseObservationMethod"
+          },
+          "assessedBodysites": {
+            "description": "Anatomical location assessed to determine the treatment response",
+            "items": {
+              "$ref": "#/components/schemas/PartialCodedConcept"
+            },
+            "title": "Assessed anatomical location",
+            "type": "array",
+            "x-terminology": "ObservationBodySite"
+          }
+        },
+        "title": "PartialTreatmentResponse",
+        "type": "object"
+      },
+      "PartialTumorMarker": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `TumorMarker`.",
+        "properties": {
+          "analyte": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "The chemical or biological substance/agent that is analyzed.",
+            "title": "Analyte",
+            "x-terminology": "TumorMarkerAnalyte"
+          },
+          "massConcentration": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Measure"
+              }
+            ],
+            "description": "Mass concentration of the analyte (if revelant/measured)",
+            "title": "Mass concentration",
+            "x-default-unit": "g/l",
+            "x-measure": "MassConcentration"
+          },
+          "arbitraryConcentration": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Measure"
+              }
+            ],
+            "description": "Arbitrary concentration of the analyte (if revelant/measured)",
+            "title": "Arbitrary concentration",
+            "x-default-unit": "kIU/l",
+            "x-measure": "ArbitraryConcentration"
+          },
+          "substanceConcentration": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Measure"
+              }
+            ],
+            "description": "Substance concentration of the analyte (if revelant/measured)",
+            "title": "Substance concentration",
+            "x-default-unit": "mol/l",
+            "x-measure": "SubstanceConcentration"
+          },
+          "fraction": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Measure"
+              }
+            ],
+            "description": "Analyte fraction (if revelant/measured)",
+            "title": "Fraction",
+            "x-default-unit": "%",
+            "x-measure": "Fraction"
+          },
+          "multipleOfMedian": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Measure"
+              }
+            ],
+            "description": "Multiples of the median analyte (if revelant/measured)",
+            "title": "Multiples of the median",
+            "x-default-unit": "multiple_of_median",
+            "x-measure": "MultipleOfMedian"
+          },
+          "tumorProportionScore": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TumorMarkerTumorProportionScoreChoices"
+              }
+            ],
+            "description": "Categorization of the percentage of cells in a tumor that express PD-L1",
+            "title": "Immune Cells Score (ICS)"
+          },
+          "immuneCellScore": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TumorMarkerImmuneCellScoreChoices"
+              }
+            ],
+            "description": "Categorization of the percentage of PD-L1 positive immune cells",
+            "title": "Immune Cells Score (ICS)"
+          },
+          "combinedPositiveScore": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Measure"
+              }
+            ],
+            "description": "The number of PD-L1 positive cells, including tumor cells, lymphocytes, and macrophages divided by the total number of viable tumor cells multiplied by 100",
+            "title": "Combined Positive Score (CPS)",
+            "x-default-unit": "%",
+            "x-measure": "Fraction"
+          },
+          "immunohistochemicalScore": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TumorMarkerImmunohistochemicalScoreChoices"
+              }
+            ],
+            "description": "Categorization of the number of analyte-positive cells in a sample",
+            "title": "Immunohistochemical Score"
+          },
+          "presence": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TumorMarkerPresenceChoices"
+              }
+            ],
+            "description": "Whether an analyte has tested positive or negative.",
+            "title": "Presence"
+          },
+          "nuclearExpressionStatus": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TumorMarkerNuclearExpressionStatusChoices"
+              }
+            ],
+            "description": "Categorization of the status of expression of the analyte",
+            "title": "Nuclear expression status"
+          }
+        },
+        "title": "PartialTumorMarker",
+        "type": "object"
+      },
+      "PartialTumorMutationalBurden": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `TumorMutationalBurden`.",
+        "properties": {
+          "category": {
+            "const": "tumor_mutational_burden",
+            "description": "Genomic signature discriminator category",
+            "title": "Category",
+            "type": "string"
+          },
+          "value": {
+            "description": "The actual tumor mutational burden (TMB) value in mutations/Mb",
+            "title": "Value",
+            "type": "number"
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TumorMutationalBurdenStatusChoices"
+              }
+            ],
+            "description": "Cclassification of the tumor mutational burden (TMB) status",
+            "title": "Status"
+          }
+        },
+        "title": "PartialTumorMutationalBurden",
+        "type": "object"
+      },
+      "PartialTumorNeoantigenBurden": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `TumorNeoantigenBurden`.",
+        "properties": {
+          "category": {
+            "const": "tumor_neoantigen_burden",
+            "description": "Genomic signature discriminator category",
+            "title": "Category",
+            "type": "string"
+          },
+          "value": {
+            "description": "The actual tumor neoantigen burden (TNB) value in neoantigens/Mb",
+            "title": "Value",
+            "type": "number"
+          }
+        },
+        "title": "PartialTumorNeoantigenBurden",
+        "type": "object"
+      },
+      "PartialUnspecifiedTumorBoard": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `UnspecifiedTumorBoard`.",
+        "properties": {
+          "category": {
+            "const": "unspecified",
+            "description": "Tumor board discriminator category",
+            "title": "Category",
+            "type": "string"
+          },
+          "recommendations": {
+            "description": "Recommendation(s) provided by the board regarding the patient's care",
+            "items": {
+              "$ref": "#/components/schemas/PartialCodedConcept"
+            },
+            "title": "Recommendations",
+            "type": "array",
+            "x-terminology": "TumorBoardRecommendation"
+          }
+        },
+        "title": "PartialUnspecifiedTumorBoard",
+        "type": "object"
+      },
+      "PartialVitals": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `Vitals`.",
+        "properties": {
+          "height": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Measure"
+              }
+            ],
+            "description": "Height of the patient",
+            "title": "Height",
+            "x-default-unit": "m",
+            "x-measure": "Distance"
+          },
+          "weight": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Measure"
+              }
+            ],
+            "description": "Weight of the patient",
+            "title": "Weight",
+            "x-default-unit": "kg",
+            "x-measure": "Mass"
+          },
+          "bloodPressureSystolic": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Measure"
+              }
+            ],
+            "description": "Systolic blood pressure of the patient",
+            "title": "Systolic blood pressure",
+            "x-default-unit": "mmHg",
+            "x-measure": "Pressure"
+          },
+          "bloodPressureDiastolic": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Measure"
+              }
+            ],
+            "description": "Diastolic blood pressure of the patient",
+            "title": "Diastolic blood pressure",
+            "x-default-unit": "mmHg",
+            "x-measure": "Pressure"
+          },
+          "temperature": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Measure"
+              }
+            ],
+            "description": "Temperature of the patient",
+            "title": "Temperature",
+            "x-default-unit": "celsius",
+            "x-measure": "Temperature"
+          },
+          "bodyMassIndex": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Measure"
+              }
+            ],
+            "description": "Bodymass index of the patient",
+            "title": "Body mass index",
+            "x-measure": "MassPerArea"
+          }
+        },
+        "title": "PartialVitals",
+        "type": "object"
+      },
+      "PartialWilmsStage": {
+        "additionalProperties": false,
+        "description": "Partial matching criteria schema derived from `WilmsStage`.",
+        "properties": {
+          "stagingDomain": {
+            "const": "wilms",
+            "description": "Staging domain discriminator category",
+            "title": "Staging domain",
+            "type": "string"
+          },
+          "stage": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PartialCodedConcept"
+              }
+            ],
+            "description": "The value of the Wilms stage",
+            "title": "Wilms Stage",
+            "x-terminology": "WilmsTumorStage"
+          }
+        },
+        "title": "PartialWilmsStage",
         "type": "object"
       },
       "AnalysisMetadata": {

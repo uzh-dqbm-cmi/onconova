@@ -37,8 +37,6 @@ from .patient_case import (
     PatientCaseCreate,
     PatientCaseDataCompletionStatus,
     PatientCase,
-    MatchCountRequest,
-    MatchCountResult,
 )
 from .performance_status import PerformanceStatusCreate, PerformanceStatus
 from .radiotherapy import (
@@ -161,8 +159,6 @@ ONCOLOGY_SCHEMAS = (
     PatientCase,
     PatientCaseCreate,
     PatientCaseDataCompletionStatus,
-    MatchCountRequest,
-    MatchCountResult,
     # Neoplastic entity schemas
     NeoplasticEntity,
     NeoplasticEntityCreate,

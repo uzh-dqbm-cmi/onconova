@@ -34,11 +34,14 @@ if BASE_DIR.joinpath("pyproject.toml").exists():
 else:
     VERSION = "unknown"
 
-# Global server log level from env ``LOG_LEVEL`` (default INFO). Applied to all Django ``LOGGING``
-# handlers, named loggers, and ``root`` (see LOGGING block below).
 ONCONOVA_LOGGING_LEVEL = os.getenv("LOG_LEVEL", "INFO").strip().upper()
 if ONCONOVA_LOGGING_LEVEL not in logging.getLevelNamesMapping():
     ONCONOVA_LOGGING_LEVEL = "INFO"
+"""
+Global server log level from the `LOG_LEVEL` environment variable (default `INFO`).
+Applied to all Django `LOGGING` handlers, named loggers, and `root`. At `DEBUG`,
+matching requests log parameterized SQL query templates with bound parameter counts.
+"""
 
 DEBUG = os.getenv("ENVIRONMENT") == "development"
 """
@@ -526,8 +529,8 @@ LOGGING = {
             "level": ONCONOVA_LOGGING_LEVEL,
             "propagate": False,
         },
-        # SQL trace for patient-cases/match-count (see match_count.py)
-        "onconova.oncology.match_count": {
+        # Parameterized ORM SQL query template and bound parameter count for POST /matching/count when LOG_LEVEL=DEBUG (see analytics/matching.py)
+        "onconova.analytics.matching": {
             "handlers": ["error_console"],
             "level": ONCONOVA_LOGGING_LEVEL,
             "propagate": False,
