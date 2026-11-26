@@ -246,37 +246,13 @@ def get_polymorphic_parent(
     return None
 
 
-def get_orm_field_or_qprop(
-    model: type[DjangoModel], orm_name: str
-) -> tuple[Any | None, QueryableProperty | None]:
-    """
-    Retrieve a Django ORM field or `QueryableProperty` by attribute name.
-
-    Args:
-        model (type[DjangoModel]): Django ORM model class to inspect.
-        orm_name (str): Candidate ORM field or queryable property name.
-
-    Returns:
-        tuple[Any | None, QueryableProperty | None]: `(django_field, queryable_property)`
-            where at most one element is populated, or `(None, None)` if absent.
-    """
-    try:
-        return model._meta.get_field(orm_name), None
-    except FieldDoesNotExist:
-        descriptor = getattr(model, orm_name, None)
-        prop = getattr(descriptor, "prop", descriptor)
-        if isinstance(prop, QueryableProperty):
-            return None, prop
-        return None, None
-
-
-def resolve_orm_field_name(
+def resolve_orm_attribute(
     schema_cls: type[BaseModel],
     field_name: str,
     model: type[DjangoModel],
-) -> str | None:
+) -> tuple[str, Any | None, QueryableProperty | None] | None:
     """
-    Resolve a camelCase schema field name to its corresponding ORM attribute name.
+    Resolve a camelCase schema field name to its Django ORM field or `QueryableProperty`.
 
     Checks the source schema's explicit alias, standard `camel_to_snake` conversion,
     and an acronym-preserving snake_case fallback (e.g. `isVUS` -> `is_vus`).
@@ -287,23 +263,25 @@ def resolve_orm_field_name(
         model (type[DjangoModel]): Target Django ORM model class.
 
     Returns:
-        str | None: Resolved ORM field/property name, or `None` if no mapping exists.
+        tuple[str, Any | None, QueryableProperty | None] | None:
+            `(orm_name, django_field, queryable_property)` where at most one of
+            `django_field` or `queryable_property` is populated, or `None` if unmapped.
     """
-    candidates: list[str] = []
     source_schema = getattr(schema_cls, "__source_schema__", None) or schema_cls
-    if field_name in source_schema.model_fields:
-        alias = source_schema.model_fields[field_name].alias
-        if alias:
-            candidates.append(alias)
-    candidates.append(camel_to_snake(field_name))
-    acronym_snake = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", field_name).lower()
-    if acronym_snake not in candidates:
-        candidates.append(acronym_snake)
-
-    for candidate in candidates:
-        django_field, qprop = get_orm_field_or_qprop(model, candidate)
-        if django_field is not None or qprop is not None:
-            return candidate
+    field_info = source_schema.model_fields.get(field_name)
+    candidates = [
+        *([field_info.alias] if field_info and field_info.alias else ()),
+        camel_to_snake(field_name),
+        re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", field_name).lower(),
+    ]
+    for candidate in dict.fromkeys(candidates):
+        try:
+            return candidate, model._meta.get_field(candidate), None
+        except FieldDoesNotExist:
+            descriptor = getattr(model, candidate, None)
+            prop = getattr(descriptor, "prop", descriptor)
+            if isinstance(prop, QueryableProperty):
+                return candidate, None, prop
     return None
 
 
@@ -385,6 +363,13 @@ class PartialRange(_PartialMatchingSchema):
     )
 
 
+_SPECIAL_PARTIAL_TYPES: tuple[tuple[type[BaseModel], type[BaseModel]], ...] = (
+    (CodedConcept, PartialCodedConcept),
+    (Range, PartialRange),
+    (Measure, Measure),
+)
+
+
 def _transform_partial_annotation(
     annotation: Any,
     excluded_fields: frozenset[str],
@@ -392,39 +377,31 @@ def _transform_partial_annotation(
 ) -> Any:
     """Recursively transform a Pydantic field annotation into its partial-schema equivalent."""
     origin = get_origin(annotation)
+    args = get_args(annotation)
 
     if origin is Annotated:
-        inner = get_args(annotation)[0]
-        return _transform_partial_annotation(inner, excluded_fields, cache)
+        return _transform_partial_annotation(args[0], excluded_fields, cache)
 
     if origin in (Union, UnionType):
         members = [
             _transform_partial_annotation(arg, excluded_fields, cache)
-            for arg in get_args(annotation)
+            for arg in args
             if arg is not type(None)
         ]
-        if len(members) == 1:
-            return members[0]
-        return Union[tuple(members)]  # type: ignore[valid-type]
+        return members[0] if len(members) == 1 else Union[tuple(members)]  # type: ignore[valid-type]
 
     if origin is list:
-        args = get_args(annotation)
-        if args:
-            return List[_transform_partial_annotation(args[0], excluded_fields, cache)]  # type: ignore[valid-type]
-        return List[Any]
+        return (
+            List[_transform_partial_annotation(args[0], excluded_fields, cache)]  # type: ignore[valid-type]
+            if args
+            else List[Any]
+        )
 
     if isinstance(annotation, type) and issubclass(annotation, BaseModel):
-        if issubclass(annotation, CodedConcept):
-            return PartialCodedConcept
-        if issubclass(annotation, Range):
-            return PartialRange
-        if issubclass(annotation, Measure):
-            return Measure
-        return make_partial_schema(
-            annotation,
-            excluded_fields=excluded_fields,
-            cache=cache,
-        )
+        for source_type, target_type in _SPECIAL_PARTIAL_TYPES:
+            if issubclass(annotation, source_type):
+                return target_type
+        return make_partial_schema(annotation, excluded_fields=excluded_fields, cache=cache)
 
     return annotation
 
@@ -451,8 +428,7 @@ def make_partial_schema(
     Returns:
         type[_PartialMatchingSchema]: Generated partial Pydantic schema class.
     """
-    if cache is None:
-        cache = {}
+    cache = {} if cache is None else cache
     if schema_cls in cache:
         return cache[schema_cls]  # type: ignore[return-value]
 
@@ -466,46 +442,40 @@ def make_partial_schema(
         if (
             orm_model is not None
             and field_name != discriminator_field
-            and resolve_orm_field_name(schema_cls, field_name, orm_model) is None
+            and resolve_orm_attribute(schema_cls, field_name, orm_model) is None
         ):
             continue
 
         transformed = _transform_partial_annotation(
-            field_info.annotation,
-            excluded_fields=excluded_fields,
-            cache=cache,
+            field_info.annotation, excluded_fields=excluded_fields, cache=cache
         )
         title = field_info.title or camel_to_snake(field_name).replace("_", " ").capitalize()
-        description = (
-            field_info.description or f"Matching criteria for {title.lower()}."
-        )
         field_kwargs: dict[str, Any] = {
             "default": None,
             "title": title,
-            "description": description,
+            "description": field_info.description or f"Matching criteria for {title.lower()}.",
         }
         if isinstance(field_info.json_schema_extra, dict):
             field_kwargs["json_schema_extra"] = dict(field_info.json_schema_extra)
-        for meta in field_info.metadata:
-            pattern = getattr(meta, "pattern", None)
-            if pattern:
-                field_kwargs["pattern"] = pattern
-                break
+        if pattern := next(
+            (p for meta in field_info.metadata if (p := getattr(meta, "pattern", None))),
+            None,
+        ):
+            field_kwargs["pattern"] = pattern
 
         field_definitions[field_name] = (
             Nullable[transformed],  # type: ignore[valid-type]
             Field(**field_kwargs),
         )
 
-    partial_name = f"Partial{schema_cls.__name__}"
     partial_cls: type[_PartialMatchingSchema] = create_model(
-        partial_name,
+        f"Partial{schema_cls.__name__}",
         __base__=_PartialMatchingSchema,
         __module__=__name__,
         **field_definitions,
     )
     partial_cls.__doc__ = f"Partial matching criteria schema derived from `{schema_cls.__name__}`."
-    partial_cls.__orm_model__ = getattr(schema_cls, "__orm_model__", None)
+    partial_cls.__orm_model__ = orm_model
     partial_cls.__source_schema__ = schema_cls
     cache[schema_cls] = partial_cls
     return partial_cls
